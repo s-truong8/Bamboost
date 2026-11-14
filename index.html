@@ -4,14 +4,71 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>[APP NAME]</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<!-- data-screen is updated by showScreen() in main.js. style.css uses it
+     to show the right top bar and fill the progress bar. -->
+<body data-screen="home">
 
-  <header>
-    <h1>[APP NAME]</h1>
-    <span class="safety">Practice on a firm cushion. Never practice on a real person.</span>
+  <!-- ============================================================
+       DRAWINGS: defined once here, reused with <svg><use href="#..."/></svg>
+       ============================================================ -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <!-- The mascot: a panda with a medic headband -->
+    <symbol id="panda" viewBox="0 0 120 120">
+      <circle cx="28" cy="30" r="17" fill="#1d1d1f" stroke="#55625b" stroke-width="2.5"/>
+      <circle cx="92" cy="30" r="17" fill="#1d1d1f" stroke="#55625b" stroke-width="2.5"/>
+      <circle cx="28" cy="30" r="8" fill="#3a3a40"/>
+      <circle cx="92" cy="30" r="8" fill="#3a3a40"/>
+      <ellipse cx="60" cy="66" rx="46" ry="42" fill="#fbfaf5"/>
+      <path d="M18 50 Q60 16 102 50" fill="none" stroke="#ff5b61" stroke-width="9" stroke-linecap="round"/>
+      <circle cx="60" cy="33" r="8" fill="#ffffff"/>
+      <rect x="58" y="28" width="4" height="10" rx="1" fill="#ff5b61"/>
+      <rect x="55" y="31" width="10" height="4" rx="1" fill="#ff5b61"/>
+      <ellipse cx="41" cy="62" rx="12" ry="16" transform="rotate(28 41 62)" fill="#1d1d1f"/>
+      <ellipse cx="79" cy="62" rx="12" ry="16" transform="rotate(-28 79 62)" fill="#1d1d1f"/>
+      <circle cx="43" cy="60" r="6.5" fill="#ffffff"/>
+      <circle cx="44.5" cy="61" r="3.6" fill="#1d1d1f"/>
+      <circle cx="45.6" cy="59.6" r="1.3" fill="#ffffff"/>
+      <circle cx="77" cy="60" r="6.5" fill="#ffffff"/>
+      <circle cx="78.5" cy="61" r="3.6" fill="#1d1d1f"/>
+      <circle cx="79.6" cy="59.6" r="1.3" fill="#ffffff"/>
+      <circle cx="28" cy="80" r="6" fill="#ff9fb0" opacity="0.6"/>
+      <circle cx="92" cy="80" r="6" fill="#ff9fb0" opacity="0.6"/>
+      <ellipse cx="60" cy="78" rx="6.5" ry="4.5" fill="#1d1d1f"/>
+      <path d="M53 85 Q60 92 67 85" fill="none" stroke="#1d1d1f" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- Line icons (color = the CSS "color" of the svg) -->
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 5h6a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H3zM21 5h-6a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h7z"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A17 17 0 0 1 3 5a2 2 0 0 1 2-2z"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-4.6-8-10.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 8 2.5C20 15.4 12 20 12 20z"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8M10 17h4v3h-4z"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 7v6M12 17v.5"/></symbol>
+    <symbol id="i-hands" viewBox="0 0 24 24"><path d="M7 14V8a1.5 1.5 0 0 1 3 0v4M10 11V6.5a1.5 1.5 0 0 1 3 0V11M13 11V7.5a1.5 1.5 0 0 1 3 0V12M16 12v-1.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L4.3 14.6a1.5 1.5 0 0 1 2.5-1.6L7 14"/></symbol>
+    <symbol id="i-arm" viewBox="0 0 24 24"><path d="M12 3v18M7 21h10M9 7l3-4 3 4"/></symbol>
+    <symbol id="i-beat" viewBox="0 0 24 24"><path d="M2 12h4l2-5 4 10 2-5h8"/></symbol>
+  </svg>
+
+  <!-- Top bar on the home screen only -->
+  <header id="home-header">
+    <h1 class="logo">[APP NAME]</h1>
+    <span class="safety-pill">Practice on a firm cushion. Never practice on a real person.</span>
   </header>
+
+  <!-- Top bar during the emergency: quit button + progress bar -->
+  <div id="lesson-bar">
+    <button class="next-button icon-button" data-next="home" aria-label="Quit and go back home">
+      <svg class="icon"><use href="#i-close"/></svg>
+    </button>
+    <div class="progress" role="presentation"><div class="progress-fill"></div></div>
+  </div>
 
   <!-- One <section> per screen. Only the one with the class "active" is visible. -->
   <!-- Each temporary Next button says where it goes with data-next="...". -->
@@ -20,22 +77,107 @@
     <!-- The webcam image with the skeleton drawn on top. -->
     <!-- camera.js shows it only on the setup and compressions screens. -->
     <div id="camera-box">
+      <p class="camera-placeholder"><svg class="icon"><use href="#i-camera"/></svg>Camera off</p>
       <video id="camera-video" autoplay playsinline muted></video>
       <canvas id="camera-canvas"></canvas>
+      <p class="camera-safety">Firm cushion only. Never on a real person.</p>
     </div>
 
+    <!-- ============================== HOME ============================== -->
     <section id="screen-home" class="screen active">
-      <h2>Home</h2>
-      <p>[MASCOT NAME] the panda welcomes the player here.</p>
-      <button class="next-button" data-next="setup">Next</button>
+      <div class="home-layout">
+
+        <div class="home-main">
+          <div class="unit-banner">
+            <p class="unit-kicker">Mission 1</p>
+            <h2>Hands-only CPR</h2>
+            <p>A man collapses. You have 2 minutes to help him.</p>
+          </div>
+
+          <div class="divider-title"><span>The emergency</span></div>
+
+          <div class="path-area">
+            <ol class="path">
+              <li class="path-step" style="--shift: 0px">
+                <span class="start-bubble">Start</span>
+                <button class="next-button path-node current" data-next="setup" aria-label="Start: camera check">
+                  <svg class="icon"><use href="#i-camera"/></svg>
+                </button>
+                <span class="path-label">Camera check</span>
+              </li>
+              <li class="path-step" style="--shift: 56px">
+                <span class="path-node locked"><svg class="icon"><use href="#i-book"/></svg></span>
+                <span class="path-label">How to push</span>
+              </li>
+              <li class="path-step" style="--shift: 76px">
+                <span class="path-node locked"><svg class="icon"><use href="#i-phone"/></svg></span>
+                <span class="path-label">The call</span>
+              </li>
+              <li class="path-step" style="--shift: 36px">
+                <span class="path-node locked"><svg class="icon"><use href="#i-heart"/></svg></span>
+                <span class="path-label">Compressions</span>
+              </li>
+              <li class="path-step" style="--shift: -16px">
+                <span class="path-node locked chest"><svg class="icon"><use href="#i-trophy"/></svg></span>
+                <span class="path-label">Your grade</span>
+              </li>
+            </ol>
+
+            <svg class="path-mascot" viewBox="0 0 160 180" aria-hidden="true">
+              <ellipse cx="80" cy="172" rx="52" ry="7" fill="#000000" opacity="0.25"/>
+              <ellipse cx="80" cy="132" rx="50" ry="42" fill="#1d1d1f" stroke="#55625b" stroke-width="2.5"/>
+              <ellipse cx="80" cy="138" rx="32" ry="32" fill="#fbfaf5"/>
+              <ellipse cx="50" cy="166" rx="18" ry="10" fill="#1d1d1f"/>
+              <ellipse cx="110" cy="166" rx="18" ry="10" fill="#1d1d1f"/>
+              <use href="#panda" x="20" y="0" width="120" height="120"/>
+            </svg>
+          </div>
+        </div>
+
+        <aside class="home-side">
+          <div class="card">
+            <div class="card-row">
+              <svg class="panda panda-small" aria-hidden="true"><use href="#panda"/></svg>
+              <div>
+                <h3>Meet [MASCOT NAME]</h3>
+                <p class="muted">Your coach. I'll be with you during the whole emergency.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Before you start</h3>
+            <ul class="checklist">
+              <li><svg class="icon"><use href="#i-check"/></svg>A firm cushion on the floor</li>
+              <li><svg class="icon"><use href="#i-check"/></svg>A webcam that sees you from the side</li>
+              <li><svg class="icon"><use href="#i-check"/></svg>Space to kneel next to the cushion</li>
+              <li><svg class="icon"><use href="#i-check"/></svg>Sound on</li>
+            </ul>
+          </div>
+
+          <div class="card card-warning">
+            <h3>Safety</h3>
+            <p>Practice on a firm cushion. Never practice on a real person.</p>
+          </div>
+        </aside>
+
+      </div>
     </section>
 
-    <section id="screen-setup" class="screen">
-      <h2>Setup (camera check)</h2>
-      <p id="setup-status">Put the camera to your side, so it sees you and the cushion. Then turn it on.</p>
-      <p><button id="camera-button">Turn on the camera</button></p>
-      <p id="setup-arm"></p>
-      <p>Test compressions counted: <strong id="setup-count">0</strong></p>
+    <!-- ============================== SETUP ============================== -->
+    <section id="screen-setup" class="screen lesson">
+      <div class="coach">
+        <svg class="panda" aria-hidden="true"><use href="#panda"/></svg>
+        <div class="bubble">
+          <p id="setup-status">Put the camera to your side, so it sees you and the cushion. Then turn it on.</p>
+        </div>
+      </div>
+
+      <div class="setup-actions">
+        <button id="camera-button" class="btn btn-blue">Turn on the camera</button>
+        <p id="setup-arm"></p>
+        <p class="count-chip">Test compressions counted <strong id="setup-count">0</strong></p>
+      </div>
 
       <!-- For the team only: to see and tune what the tracker sees -->
       <details id="debug-panel">
@@ -49,49 +191,172 @@
         </label>
       </details>
 
-      <button class="next-button" data-next="tutorial">Next</button>
+      <footer class="lesson-footer">
+        <div class="lesson-footer-inner">
+          <button class="next-button btn" data-next="tutorial">Continue</button>
+        </div>
+      </footer>
     </section>
 
-    <section id="screen-tutorial" class="screen">
-      <h2>Tutorial</h2>
-      <p>[MASCOT NAME] explains how to do chest compressions.</p>
-      <button class="next-button" data-next="scene">Next</button>
+    <!-- ============================== TUTORIAL ============================== -->
+    <!-- TO CHECK WITH OFFICIAL SOURCES: the text of the 3 tips. -->
+    <section id="screen-tutorial" class="screen lesson">
+      <div class="coach">
+        <svg class="panda" aria-hidden="true"><use href="#panda"/></svg>
+        <div class="bubble"><p>Three things to remember before the emergency starts.</p></div>
+      </div>
+
+      <ol class="tips">
+        <li class="tip">
+          <span class="tip-icon tip-green"><svg class="icon"><use href="#i-hands"/></svg></span>
+          <div><h3>Center of the chest</h3><p class="muted">Push hard and fast in the center of the cushion.</p></div>
+        </li>
+        <li class="tip">
+          <span class="tip-icon tip-blue"><svg class="icon"><use href="#i-arm"/></svg></span>
+          <div><h3>Straight arms</h3><p class="muted">Lock your elbows and push with your whole body.</p></div>
+        </li>
+        <li class="tip">
+          <span class="tip-icon tip-red"><svg class="icon"><use href="#i-beat"/></svg></span>
+          <div><h3>100 to 120 per minute</h3><p class="muted">Keep a steady rhythm. Don't stop until help arrives.</p></div>
+        </li>
+      </ol>
+
+      <footer class="lesson-footer">
+        <div class="lesson-footer-inner">
+          <button class="next-button btn" data-next="scene">I'm ready</button>
+        </div>
+      </footer>
     </section>
 
-    <section id="screen-scene" class="screen">
-      <h2>Scene</h2>
-      <p>A man collapses. The emergency starts.</p>
-      <button class="next-button" data-next="decisions">Next</button>
+    <!-- ============================== SCENE ============================== -->
+    <section id="screen-scene" class="screen lesson">
+      <div class="alert-card">
+        <span class="alert-icon"><svg class="icon"><use href="#i-alert"/></svg></span>
+        <p class="alert-kicker">Emergency</p>
+        <h2>A man collapses in front of you.</h2>
+        <p class="muted">He doesn't move. You are the only one who can help.</p>
+      </div>
+
+      <div class="coach">
+        <svg class="panda" aria-hidden="true"><use href="#panda"/></svg>
+        <div class="bubble"><p>Stay calm. I'm right here with you.</p></div>
+      </div>
+
+      <footer class="lesson-footer">
+        <div class="lesson-footer-inner">
+          <button class="next-button btn btn-red" data-next="decisions">Help him</button>
+        </div>
+      </footer>
     </section>
 
-    <section id="screen-decisions" class="screen">
-      <h2>Decisions</h2>
-      <p>The dispatcher asks questions. The player answers with buttons.</p>
-      <button class="next-button" data-next="compressions">Next</button>
+    <!-- ============================== DECISIONS ============================== -->
+    <!-- scenario.js fills #dispatcher-line, #choices, #decision-timer and #decision-feedback.
+         The 2 choice buttons below are placeholders to show the style:
+         scenario.js should replace them with <button class="choice">...</button>.
+         Add the class "correct" or "wrong" to a choice after the player clicks it. -->
+    <section id="screen-decisions" class="screen lesson">
+      <p class="screen-kicker">Answer the dispatcher</p>
+
+      <div class="dispatcher">
+        <span class="dispatcher-avatar"><svg class="icon"><use href="#i-phone"/></svg></span>
+        <div class="bubble bubble-blue">
+          <p class="bubble-name">Dispatcher</p>
+          <p id="dispatcher-line">The dispatcher asks questions. The player answers with buttons.</p>
+        </div>
+      </div>
+
+      <div class="timer"><div id="decision-timer" class="timer-fill"></div></div>
+
+      <div id="choices" class="choices">
+        <button type="button" class="choice"><span class="choice-key">1</span>Placeholder answer</button>
+        <button type="button" class="choice"><span class="choice-key">2</span>Placeholder answer</button>
+      </div>
+
+      <p id="decision-feedback"></p>
+
+      <footer class="lesson-footer">
+        <div class="lesson-footer-inner">
+          <button class="next-button btn" data-next="compressions">Continue</button>
+        </div>
+      </footer>
     </section>
 
-    <section id="screen-compressions" class="screen">
-      <h2>Compressions</h2>
-      <p class="big-number"><span id="live-rate">–</span> <small>/min</small></p>
+    <!-- ============================== COMPRESSIONS ============================== -->
+    <section id="screen-compressions" class="screen lesson">
+      <div class="rate-panel">
+        <span class="beat" aria-hidden="true"></span>
+        <p class="big-number"><span id="live-rate">–</span> <small>/min</small></p>
+        <p class="muted rate-target">Follow the beat: 100 to 120 per minute</p>
+      </div>
       <p id="live-feedback"></p>
       <div class="stats">
         <div class="stat">Compressions<strong id="live-count">0</strong></div>
         <div class="stat">Pauses<strong id="live-pauses">0</strong></div>
         <div class="stat">Arms<strong id="live-arms">–</strong></div>
       </div>
-      <button class="next-button" data-next="ambulance">Next</button>
+
+      <footer class="lesson-footer">
+        <div class="lesson-footer-inner">
+          <button class="next-button btn" data-next="ambulance">Continue</button>
+        </div>
+      </footer>
     </section>
 
-    <section id="screen-ambulance" class="screen">
-      <h2>Ambulance</h2>
-      <p>The ambulance arrives and takes over.</p>
-      <button class="next-button" data-next="results">Next</button>
+    <!-- ============================== AMBULANCE ============================== -->
+    <section id="screen-ambulance" class="screen lesson">
+      <svg class="ambulance" viewBox="0 0 200 120" aria-hidden="true">
+        <rect x="0" y="110" width="200" height="4" rx="2" fill="var(--border)"/>
+        <rect class="siren" x="60" y="30" width="22" height="10" rx="3"/>
+        <rect x="20" y="40" width="112" height="56" rx="8" fill="#f4f6f8"/>
+        <path d="M130 52h30l22 22v22h-52z" fill="#f4f6f8"/>
+        <path d="M140 58h18l16 16h-34z" fill="#7cc4ff"/>
+        <rect x="20" y="80" width="162" height="7" fill="#ff5b61"/>
+        <rect x="65" y="46" width="10" height="28" rx="2" fill="#ff5b61"/>
+        <rect x="56" y="55" width="28" height="10" rx="2" fill="#ff5b61"/>
+        <circle cx="50" cy="98" r="12" fill="#1d1d1f"/><circle cx="50" cy="98" r="5" fill="#8a949c"/>
+        <circle cx="154" cy="98" r="12" fill="#1d1d1f"/><circle cx="154" cy="98" r="5" fill="#8a949c"/>
+      </svg>
+      <h2 class="screen-title">Help has arrived!</h2>
+
+      <div class="coach">
+        <svg class="panda" aria-hidden="true"><use href="#panda"/></svg>
+        <div class="bubble"><p>The paramedics take over. You kept him going. Well done!</p></div>
+      </div>
+
+      <footer class="lesson-footer">
+        <div class="lesson-footer-inner">
+          <button class="next-button btn" data-next="results">See my results</button>
+        </div>
+      </footer>
     </section>
 
-    <section id="screen-results" class="screen">
-      <h2>Results</h2>
-      <p>The player sees their grade and one tip.</p>
-      <button class="next-button" data-next="home">Next (back to home)</button>
+    <!-- ============================== RESULTS ============================== -->
+    <!-- main.js fills the result-... elements with computeScore(game). -->
+    <section id="screen-results" class="screen lesson">
+      <div class="results-hero">
+        <svg class="panda panda-big" aria-hidden="true"><use href="#panda"/></svg>
+        <h2 class="screen-title">Emergency handled!</h2>
+        <div class="grade-badge"><span id="result-grade">–</span></div>
+        <p class="results-total"><strong id="result-total">0</strong> points</p>
+      </div>
+
+      <div class="result-tiles">
+        <div class="result-tile tile-amber"><span class="tile-label">Fast start</span><strong id="result-speed">0</strong></div>
+        <div class="result-tile tile-blue"><span class="tile-label">Decisions</span><strong id="result-decisions">0</strong></div>
+        <div class="result-tile tile-green"><span class="tile-label">Rhythm</span><strong id="result-rate">0</strong></div>
+        <div class="result-tile tile-red"><span class="tile-label">No pauses</span><strong id="result-pauses">0</strong></div>
+      </div>
+
+      <div class="coach">
+        <svg class="panda" aria-hidden="true"><use href="#panda"/></svg>
+        <div class="bubble"><p class="bubble-name">Tip</p><p id="result-tip"></p></div>
+      </div>
+
+      <footer class="lesson-footer">
+        <div class="lesson-footer-inner">
+          <button class="next-button btn" data-next="home">Back to home</button>
+        </div>
+      </footer>
     </section>
 
   </main>

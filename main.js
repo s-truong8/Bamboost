@@ -52,6 +52,10 @@ export function showScreen(name) {
 
   screenToShow.classList.add("active");
   currentScreenName = name;
+  window.scrollTo(0, 0);
+
+  // style.css reads this to pick the top bar and fill the progress bar
+  document.body.dataset.screen = name;
 
   // Tell camera.js when we enter one of its screens
   if (name === "setup") {
@@ -60,6 +64,24 @@ export function showScreen(name) {
   if (name === "compressions") {
     enterCompressionsScreen(game);
   }
+  if (name === "results") {
+    showResults();
+  }
+}
+
+// ============================================================
+// RESULTS SCREEN
+// ============================================================
+// Writes the score from score.js into the results screen.
+function showResults() {
+  const score = computeScore(game);
+  document.getElementById("result-grade").textContent = score.grade;
+  document.getElementById("result-total").textContent = score.total;
+  document.getElementById("result-speed").textContent = score.speed;
+  document.getElementById("result-decisions").textContent = score.decisions;
+  document.getElementById("result-rate").textContent = score.rate;
+  document.getElementById("result-pauses").textContent = score.pauses;
+  document.getElementById("result-tip").textContent = score.tip;
 }
 
 // ============================================================
@@ -72,4 +94,11 @@ for (const button of nextButtons) {
   button.addEventListener("click", function () {
     showScreen(button.dataset.next);
   });
+}
+
+// For the team: open index.html?screen=results (or any screen name)
+// to jump straight to that screen while working on its design.
+const screenFromAddress = new URLSearchParams(window.location.search).get("screen");
+if (screenFromAddress !== null) {
+  showScreen(screenFromAddress);
 }

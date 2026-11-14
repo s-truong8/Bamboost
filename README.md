@@ -101,6 +101,23 @@ Notes:
 - You can call `startTracking` again after `stopTracking` to play again.
 - Debug only (used by the debug panel on the setup screen): `setSensitivity(value)` changes the minimum dip (default 0.07 forearm length), and `getDebugData()` returns the last 5 seconds of the signal and the camera fps. The game itself should not need them.
 
+### UI hooks (index.html)
+
+The design is in `style.css` (colors at the top, in `:root`). `showScreen` sets `<body data-screen="...">`, and the CSS uses it to show the right top bar and fill the progress bar.
+
+Elements ready for `scenario.js` (decisions screen):
+
+| Id | What to put there |
+| --- | --- |
+| `dispatcher-line` | The dispatcher's line (set `textContent`). |
+| `choices` | One `<button class="choice">` per choice. Optional: `<span class="choice-key">1</span>` before the text. After a click, add the class `correct` or `wrong`. The 2 buttons in the HTML are placeholders: remove them. |
+| `decision-timer` | The countdown bar: set `style.width` from `"100%"` to `"0%"`. |
+| `decision-feedback` | The feedback of a wrong choice. |
+
+The results screen is filled by `main.js` with `computeScore(game)`: `result-grade`, `result-total`, `result-speed`, `result-decisions`, `result-rate`, `result-pauses`, `result-tip`.
+
+To work on one screen's design, open `index.html?screen=results` (or any screen name): it jumps straight there.
+
 ### script.json format
 
 A list of steps. Each step:

@@ -1,12 +1,34 @@
-/* Color theme: change the colors here and the whole app follows. */
+/* ============================================================
+   COLOR THEME: change the colors here and the whole app follows.
+   Each button color has a darker "shadow" color for the 3D bottom edge.
+   ============================================================ */
 :root {
-  --background: #f4f7f1;
-  --card: #ffffff;
-  --text: #1f2a1f;
-  --muted-text: #5f6b5f;
-  --border: #d5ddd0;
-  --bamboo-green: #3f8f4f;
-  --warning: #b3541e;
+  --bg: #121b17;
+  --surface: #18241f;
+  --surface-2: #1f2e27;
+  --border: #2c3d35;
+  --text: #edf3ee;
+  --muted: #8fa398;
+
+  --green: #46c46f;
+  --green-shadow: #2d8a4b;
+  --blue: #3fa2ff;
+  --blue-shadow: #2672bd;
+  --red: #ff5b61;
+  --red-shadow: #c23a40;
+  --amber: #ffb72b;
+  --amber-shadow: #c48613;
+  --locked: #2a3631;
+  --locked-shadow: #1c2521;
+  --locked-icon: #52665c;
+
+  /* Text colors for live feedback (used by camera.js classes) */
+  --good: #5fd68a;
+  --warn: #ffb72b;
+  --bad: #ff6b6b;
+
+  --radius: 16px;
+  --font: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 * {
@@ -15,92 +37,504 @@
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  background: var(--background);
+  font-family: var(--font);
+  font-weight: 700;
+  background: var(--bg);
   color: var(--text);
+  line-height: 1.4;
 }
 
-header {
+h1, h2, h3 {
+  margin: 0;
+  font-weight: 900;
+}
+
+p {
+  margin: 0;
+}
+
+.muted {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Line icons: the stroke takes the text color */
+.icon {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+.panda {
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+}
+
+.panda-small { width: 64px; height: 64px; }
+.panda-big { width: 140px; height: 140px; }
+
+/* ============================================================
+   BUTTONS: chunky, with a darker bottom edge that "presses" on click
+   ============================================================ */
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 160px;
+  padding: 14px 28px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--green);
+  box-shadow: 0 5px 0 var(--green-shadow);
+  color: #0c2015;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  transition: transform 0.05s, box-shadow 0.05s, filter 0.15s;
+}
+
+.btn:hover { filter: brightness(1.08); }
+
+.btn:active {
+  transform: translateY(5px);
+  box-shadow: 0 0 0 var(--green-shadow);
+}
+
+.btn-blue { background: var(--blue); box-shadow: 0 5px 0 var(--blue-shadow); color: #06203a; }
+.btn-red  { background: var(--red);  box-shadow: 0 5px 0 var(--red-shadow);  color: #3a0a0c; }
+
+.btn:disabled {
+  background: var(--locked);
+  box-shadow: 0 5px 0 var(--locked-shadow);
+  color: var(--muted);
+  cursor: default;
+  transform: none;
+  filter: none;
+}
+
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--muted);
+}
+
+.icon-button:hover { color: var(--text); background: var(--surface-2); }
+
+:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   TOP BARS
+   The home header shows on the home screen, the lesson bar on all others.
+   ============================================================ */
+#home-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
-  padding: 12px 20px;
-  background: var(--card);
-  border-bottom: 1px solid var(--border);
-}
-
-header h1 {
-  margin: 0;
-  font-size: 22px;
-}
-
-.safety {
-  font-size: 13px;
-  color: var(--warning);
-}
-
-main {
-  max-width: 800px;
+  gap: 12px;
+  max-width: 1080px;
   margin: 0 auto;
-  padding: 24px 16px;
+  padding: 20px 16px 0;
+}
+
+.logo {
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--green);
+  letter-spacing: -0.5px;
+}
+
+.safety-pill {
+  padding: 6px 14px;
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--amber);
+}
+
+#lesson-bar {
+  display: none;
+  align-items: center;
+  gap: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 20px 16px 4px;
+}
+
+body:not([data-screen="home"]) #home-header { display: none; }
+body:not([data-screen="home"]) #lesson-bar { display: flex; }
+
+.progress {
+  flex: 1;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: var(--green);
+  /* the light stripe on top, for a shiny look */
+  box-shadow: inset 0 4px 0 -1px rgba(255, 255, 255, 0.25);
+  transition: width 0.5s ease;
+}
+
+body[data-screen="setup"] .progress-fill        { width: 12%; }
+body[data-screen="tutorial"] .progress-fill     { width: 28%; }
+body[data-screen="scene"] .progress-fill        { width: 44%; }
+body[data-screen="decisions"] .progress-fill    { width: 60%; }
+body[data-screen="compressions"] .progress-fill { width: 78%; }
+body[data-screen="ambulance"] .progress-fill    { width: 92%; }
+body[data-screen="results"] .progress-fill      { width: 100%; }
+
+/* ============================================================
+   MAIN AREA AND SCREENS
+   ============================================================ */
+main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 20px 16px;
+}
+
+body[data-screen="home"] main {
+  max-width: 1080px;
 }
 
 /* Screens: all hidden, except the one with the class "active". */
 .screen {
   display: none;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 32px 24px;
-  text-align: center;
 }
 
 .screen.active {
   display: block;
+  animation: screen-in 0.25s ease-out;
 }
 
-.screen h2 {
-  margin-top: 0;
+/* Opacity only: a transform here would break the fixed footer */
+@keyframes screen-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Lesson screens leave room for the fixed footer */
+.lesson {
+  padding-bottom: 120px;
+  text-align: center;
+}
+
+.screen-title {
   font-size: 28px;
+  margin: 12px 0 20px;
 }
 
-.screen p {
-  color: var(--muted-text);
+.screen-kicker {
+  margin-bottom: 16px;
+  font-size: 22px;
+  font-weight: 900;
+  text-align: left;
 }
 
-button {
-  font: inherit;
-  font-size: 16px;
-  font-weight: 600;
-  padding: 10px 20px;
+.lesson-footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-top: 2px solid var(--border);
+  background: var(--bg);
+  z-index: 10;
+}
+
+.lesson-footer-inner {
+  display: flex;
+  justify-content: flex-end;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 20px 16px 26px;
+}
+
+/* ============================================================
+   COACH: the panda with a speech bubble
+   ============================================================ */
+.coach {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.bubble {
+  position: relative;
+  flex: 1;
+  padding: 14px 18px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 17px;
+}
+
+/* The little triangle pointing at the speaker */
+.bubble::before {
+  content: "";
+  position: absolute;
+  left: -9px;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  background: inherit;
+  border-left: 2px solid var(--border);
+  border-bottom: 2px solid var(--border);
+  transform: rotate(45deg);
+}
+
+.bubble-name {
+  margin-bottom: 2px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.bubble-blue { border-color: var(--blue-shadow); }
+.bubble-blue::before { border-color: var(--blue-shadow); }
+.bubble-blue .bubble-name { color: var(--blue); }
+
+/* ============================================================
+   HOME: banner, path of steps, side cards
+   ============================================================ */
+.home-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 40px;
+  align-items: start;
+}
+
+.unit-banner {
+  padding: 20px 24px;
+  border-radius: var(--radius);
+  background: var(--green);
+  box-shadow: 0 5px 0 var(--green-shadow);
+  color: #0c2015;
+}
+
+.unit-banner h2 { font-size: 26px; }
+.unit-banner p  { font-weight: 700; }
+
+.unit-kicker {
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.divider-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 32px 0 8px;
+  color: var(--muted);
+  font-size: 18px;
+}
+
+.divider-title::before,
+.divider-title::after {
+  content: "";
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+}
+
+.path-area {
+  position: relative;
+  padding: 76px 0 20px;
+}
+
+.path {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.path-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transform: translateX(var(--shift));
+}
+
+.path-node {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 68px;
+  padding: 0;
   border: none;
-  border-radius: 8px;
-  background: var(--bamboo-green);
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 7px 0 var(--green-shadow);
   color: #ffffff;
-  cursor: pointer;
 }
 
-button:hover {
-  opacity: 0.9;
+.path-node .icon { width: 32px; height: 32px; stroke-width: 2.8; }
+
+.path-node.current {
+  outline: 6px solid rgba(70, 196, 111, 0.25);
+  outline-offset: 6px;
+  transition: transform 0.05s, box-shadow 0.05s;
 }
 
-button:disabled {
-  opacity: 0.5;
-  cursor: default;
+.path-node.current:active {
+  transform: translateY(7px);
+  box-shadow: 0 0 0 var(--green-shadow);
 }
 
-/* Camera: the canvas (skeleton) sits exactly on top of the video. */
-/* Both are flipped with scaleX(-1) so it feels like a mirror. */
+.path-node.locked {
+  background: var(--locked);
+  box-shadow: 0 7px 0 var(--locked-shadow);
+  color: var(--locked-icon);
+}
+
+.path-node.chest { border-radius: 20px; }
+
+.path-label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* The "START" bubble that bobs above the current step */
+.start-bubble {
+  position: absolute;
+  top: -60px;
+  padding: 6px 14px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--green);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  animation: bob 1.4s ease-in-out infinite;
+}
+
+.start-bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  background: var(--bg);
+  border-right: 2px solid var(--border);
+  border-bottom: 2px solid var(--border);
+  transform: rotate(45deg);
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+
+.path-mascot {
+  position: absolute;
+  left: 8%;
+  top: 170px;
+  width: 150px;
+}
+
+.home-side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card {
+  padding: 20px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.card h3 {
+  margin-bottom: 8px;
+  font-size: 19px;
+}
+
+.card-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.card-warning { border-color: var(--amber-shadow); }
+.card-warning h3 { color: var(--amber); }
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-weight: 700;
+}
+
+.checklist li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.checklist .icon { color: var(--green); width: 20px; height: 20px; stroke-width: 3; }
+
+/* ============================================================
+   CAMERA: the canvas (skeleton) sits exactly on top of the video.
+   Both are flipped with scaleX(-1) so it feels like a mirror.
+   ============================================================ */
 #camera-box {
   display: none;
   position: relative;
   max-width: 480px;
-  margin: 0 auto 16px;
+  margin: 0 auto 8px;
   aspect-ratio: 4 / 3;
   background: #000000;
-  border-radius: 12px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
   overflow: hidden;
 }
 
@@ -118,75 +552,473 @@ button:disabled {
   transform: scaleX(-1);
 }
 
-/* Live feedback on the compressions screen */
-.screen .big-number {
-  margin: 0;
-  font-size: 64px;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.screen .big-number small {
-  font-size: 18px;
-  font-weight: 400;
-  color: var(--muted-text);
-}
-
-#live-feedback {
-  min-height: 32px;
-  font-size: 24px;
-  font-weight: 600;
-}
-
-.stats {
+/* Behind the video: only seen while the camera is off */
+.camera-placeholder {
+  position: absolute;
+  inset: 0;
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 8px;
+  color: #5d6a63;
 }
 
-.stat {
-  min-width: 110px;
-  padding: 10px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 13px;
-  color: var(--muted-text);
+.camera-placeholder .icon { width: 40px; height: 40px; }
+
+.camera-safety {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--amber);
+  font-size: 12px;
+  white-space: nowrap;
 }
 
-.stat strong {
-  display: block;
-  font-size: 22px;
+/* ============================================================
+   SETUP SCREEN
+   ============================================================ */
+.setup-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+/* camera.js sets the class of #setup-arm to "good", "warn" or "" */
+#setup-arm {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+
+#setup-arm:empty { display: none; }
+
+.count-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 8px 16px;
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+}
+
+.count-chip strong {
+  min-width: 36px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
   color: var(--text);
+  font-size: 18px;
 }
-
-/* Feedback colors (after the rules above so they win) */
-.screen .good, .stat .good { color: #2e7d32; }
-.screen .warn, .stat .warn { color: #b26a00; }
-.screen .bad { color: #c62828; }
 
 /* Debug panel on the setup screen (for the team) */
 #debug-panel {
-  margin: 16px 0;
+  margin: 28px 0 0;
+  padding: 12px 16px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
   text-align: left;
+  color: var(--muted);
+  font-size: 14px;
 }
+
+#debug-panel summary { cursor: pointer; }
 
 #debug-canvas {
   display: block;
   width: 100%;
   height: 140px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  margin: 12px 0 8px;
+  border-radius: 10px;
+  background: #eef3ef; /* light, because camera.js draws dark lines */
 }
 
 .slider-row {
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-top: 8px;
   font-size: 13px;
-  color: var(--muted-text);
 }
 
 .slider-row input {
   flex: 1;
+  accent-color: var(--green);
+}
+
+/* ============================================================
+   TUTORIAL SCREEN
+   ============================================================ */
+.tips {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+
+.tip {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  border: 2px solid var(--border);
+  border-bottom-width: 5px;
+  border-radius: var(--radius);
+}
+
+.tip h3 { font-size: 18px; }
+
+.tip-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+}
+
+.tip-icon .icon { width: 28px; height: 28px; }
+.tip-green { background: rgba(70, 196, 111, 0.15); color: var(--green); }
+.tip-blue  { background: rgba(63, 162, 255, 0.15); color: var(--blue); }
+.tip-red   { background: rgba(255, 91, 97, 0.15);  color: var(--red); }
+
+/* ============================================================
+   SCENE SCREEN
+   ============================================================ */
+.alert-card {
+  margin-top: 16px;
+  padding: 32px 24px;
+  border: 2px solid var(--red-shadow);
+  border-radius: var(--radius);
+  background: rgba(255, 91, 97, 0.08);
+}
+
+.alert-card h2 { font-size: 26px; margin: 4px 0 8px; }
+
+.alert-kicker {
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--red);
+}
+
+.alert-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 12px;
+  border-radius: 50%;
+  background: var(--red);
+  color: #ffffff;
+  animation: pulse-red 1.2s ease-out infinite;
+}
+
+.alert-icon .icon { width: 36px; height: 36px; stroke-width: 3.5; }
+
+@keyframes pulse-red {
+  from { box-shadow: 0 0 0 0 rgba(255, 91, 97, 0.6); }
+  to   { box-shadow: 0 0 0 22px rgba(255, 91, 97, 0); }
+}
+
+/* ============================================================
+   DECISIONS SCREEN (scenario.js fills it)
+   ============================================================ */
+.dispatcher {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  text-align: left;
+}
+
+.dispatcher-avatar {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--blue);
+  box-shadow: 0 5px 0 var(--blue-shadow);
+  color: #06203a;
+  flex-shrink: 0;
+}
+
+.dispatcher-avatar .icon { width: 34px; height: 34px; }
+
+/* Countdown: scenario.js sets the width of #decision-timer from 100% to 0% */
+.timer {
+  height: 8px;
+  margin: 24px 0;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.timer-fill {
+  width: 100%;
+  height: 100%;
+  background: var(--amber);
+  transition: width 0.25s linear;
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--border);
+  border-bottom-width: 5px;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.choice:hover { background: var(--surface); }
+.choice:active { border-bottom-width: 2px; margin-top: 3px; }
+
+.choice-key {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.choice.correct { border-color: var(--green); background: rgba(70, 196, 111, 0.12); color: var(--good); }
+.choice.wrong   { border-color: var(--red);   background: rgba(255, 91, 97, 0.12);  color: var(--bad); }
+
+#decision-feedback {
+  min-height: 24px;
+  margin-top: 16px;
+  color: var(--bad);
+}
+
+/* ============================================================
+   COMPRESSIONS SCREEN: live feedback
+   ============================================================ */
+.rate-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 8px;
+}
+
+/* Metronome dot: one pulse every 0.545 s = 110 per minute */
+.beat {
+  width: 18px;
+  height: 18px;
+  margin-bottom: 4px;
+  border-radius: 50%;
+  background: var(--red);
+  animation: beat 0.545s ease-out infinite;
+}
+
+@keyframes beat {
+  0%   { transform: scale(1.4); box-shadow: 0 0 0 0 rgba(255, 91, 97, 0.6); }
+  60%  { transform: scale(1);   box-shadow: 0 0 0 12px rgba(255, 91, 97, 0); }
+  100% { transform: scale(1); }
+}
+
+.big-number {
+  font-size: 64px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.big-number small {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.rate-target { font-size: 14px; }
+
+/* camera.js sets the class of #live-feedback to "good", "warn", "bad" or "" */
+#live-feedback {
+  display: inline-block;
+  min-height: 46px;
+  margin: 14px 0 18px;
+  padding: 8px 20px;
+  border-radius: 999px;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+#live-feedback.good { background: rgba(95, 214, 138, 0.12); }
+#live-feedback.warn { background: rgba(255, 183, 43, 0.12); }
+#live-feedback.bad  { background: rgba(255, 107, 107, 0.14); }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.stat {
+  padding: 12px 8px;
+  border: 2px solid var(--border);
+  border-bottom-width: 5px;
+  border-radius: var(--radius);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.stat strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 26px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text);
+}
+
+/* Feedback colors (after the rules above so they win) */
+.screen .good, .stat .good { color: var(--good); }
+.screen .warn, .stat .warn { color: var(--warn); }
+.screen .bad { color: var(--bad); }
+
+/* ============================================================
+   AMBULANCE SCREEN
+   ============================================================ */
+.ambulance {
+  display: block;
+  width: 260px;
+  max-width: 80%;
+  margin: 24px auto 0;
+  animation: drive-in 0.9s ease-out;
+}
+
+.siren { animation: siren 0.6s steps(1) infinite; }
+
+@keyframes siren {
+  0%  { fill: var(--red); }
+  50% { fill: var(--blue); }
+}
+
+@keyframes drive-in {
+  from { transform: translateX(-120%); }
+  to   { transform: none; }
+}
+
+/* ============================================================
+   RESULTS SCREEN
+   ============================================================ */
+.results-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.results-hero .screen-title { color: var(--amber); margin-bottom: 16px; }
+
+.grade-badge {
+  display: grid;
+  place-items: center;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 7px 0 var(--amber-shadow);
+  color: #3a2600;
+  font-size: 60px;
+  font-weight: 900;
+  animation: pop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+@keyframes pop {
+  from { transform: scale(0); }
+  to   { transform: scale(1); }
+}
+
+.results-total {
+  margin: 18px 0 24px;
+  color: var(--muted);
+}
+
+.results-total strong { color: var(--text); font-size: 20px; }
+
+.result-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.result-tile {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 2px solid;
+  border-radius: var(--radius);
+}
+
+.tile-label {
+  padding: 4px 6px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--bg);
+}
+
+.result-tile strong {
+  padding: 12px 6px;
+  font-size: 24px;
+}
+
+.tile-amber { border-color: var(--amber); } .tile-amber .tile-label { background: var(--amber); } .tile-amber strong { color: var(--amber); }
+.tile-blue  { border-color: var(--blue); }  .tile-blue  .tile-label { background: var(--blue); }  .tile-blue  strong { color: var(--blue); }
+.tile-green { border-color: var(--green); } .tile-green .tile-label { background: var(--green); } .tile-green strong { color: var(--green); }
+.tile-red   { border-color: var(--red); }   .tile-red   .tile-label { background: var(--red); }   .tile-red   strong { color: var(--red); }
+
+/* ============================================================
+   SMALL SCREENS
+   ============================================================ */
+@media (max-width: 900px) {
+  .home-layout { grid-template-columns: 1fr; }
+  .path-mascot { left: 0; width: 110px; }
+}
+
+@media (max-width: 600px) {
+  .lesson-footer-inner .btn { width: 100%; }
+  .result-tiles { grid-template-columns: repeat(2, 1fr); }
+  .panda { width: 72px; height: 72px; }
+  .panda-big { width: 110px; height: 110px; }
+  .path-mascot { display: none; }
+  .big-number { font-size: 52px; }
+  .stat { font-size: 10px; letter-spacing: 0.3px; }
+  .coach { gap: 14px; }
+}
+
+/* Less movement for players who asked their system for it */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
