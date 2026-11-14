@@ -13,7 +13,8 @@ const STICKERS = {
   tooSlow: "assets/mascot-stickers/06-shocked.png",
 };
 
-const NEXT_STEP_DELAY = 1600; // milliseconds to enjoy the "validated" message
+const NEXT_STEP_DELAY = 1600;  // milliseconds to enjoy the "validated" message
+const WRONG_STEP_DELAY = 3500; // after a wrong answer: more time to read the feedback and the right answer
 
 // ============================================================
 // PAGE ELEMENTS
@@ -38,6 +39,8 @@ let stepDone = false;       // true once the right answer is clicked
 let stepMissed = false;     // true after a wrong answer or when time is up
 let timerId = null;         // the countdown (setInterval)
 let nextStepId = null;      // the "wait, then next step" (setTimeout)
+let currentRecord = null;   // the line of game.decisionLog for the current step
+let currentRecordStart = 0; // when the current step started (seconds)
 
 // ============================================================
 // THE INTERFACE
@@ -61,6 +64,17 @@ export function playStep(id) {
   currentStep = step;
   stepDone = false;
   stepMissed = false;
+
+  // One record per step, for the evaluation grid (see score.js)
+  currentRecord = {
+    id: step.id,
+    title: step.title,
+    wrongAnswers: 0,     // how many wrong choices were clicked
+    timedOut: false,     // true if the timer ran out
+    seconds: null,       // time until the right answer
+  };
+  currentRecordStart = performance.now() / 1000;
+  game.decisionLog.push(currentRecord);
 
   drawStepMap();
   stepTitle.textContent = "Step " + (steps.indexOf(step) + 1) + " of " + steps.length + ": " + step.title;
@@ -90,7 +104,8 @@ function drawStepMap() {
     const item = document.createElement("li");
     item.className = "step-dot";
     if (i < currentIndex) {
-      item.classList.add("done");
+      // Done, or failed if the player gave a wrong answer in this step
+      item.classList.add(wasAnsweredWrong(steps[i].id) ? "failed" : "done");
     } else if (i === currentIndex) {
       item.classList.add("current");
     } else {
@@ -100,6 +115,16 @@ function drawStepMap() {
     item.title = steps[i].title;
     stepMap.appendChild(item);
   }
+}
+
+// Did the player click a wrong answer in this step? (read from the log of main.js)
+function wasAnsweredWrong(stepId) {
+  for (const record of game.decisionLog) {
+    if (record.id === stepId && record.wrongAnswers > 0) {
+      return true;
+    }
+  }
+  return false;
 }
 
 // The bubble looks different when the dispatcher speaks
@@ -149,48 +174,77 @@ function pickChoice(choice, button) {
     return;
   }
 
-  if (!choice.correct) {
-    // Wrong: the step is missed (no point), but the player must still find the answer
-    stepMissed = true;
-    button.classList.add("wrong");
-    button.disabled = true;
-    stepMascot.src = STICKERS.wrong;
-    showFeedback(choice.feedback, "bad");
-    return;
-  }
-
-  // Right: the step is validated
+  // ONE answer per step: the first click ends the step, right or wrong.
   stepDone = true;
   clearInterval(timerId);
-  button.classList.add("correct");
+  currentRecord.seconds = performance.now() / 1000 - currentRecordStart;
   disableAllChoices();
-  stepMascot.src = STICKERS.right;
-
   game.totalDecisions = game.totalDecisions + 1;
-  if (!stepMissed) {
-    game.correctDecisions = game.correctDecisions + 1;
-  }
 
-  let message = "Step validated! ";
-  if (choice.feedback) {
-    message = message + choice.feedback;
-  }
-  showFeedback(message, "good");
+  const rightChoice = findCorrectChoice(currentStep);
+  let delay = NEXT_STEP_DELAY;
 
-  // Mark this checkpoint as done right away
-  const dots = stepMap.querySelectorAll(".step-dot");
-  dots[steps.indexOf(currentStep)].className = "step-dot done";
+  if (choice.correct) {
+    button.classList.add("correct");
+    stepMascot.src = STICKERS.right;
+    if (!stepMissed) {
+      game.correctDecisions = game.correctDecisions + 1;
+    }
+    let message = "Step validated! ";
+    if (choice.feedback) {
+      message = message + choice.feedback;
+    }
+    showFeedback(message, "good");
+    setStepDot("done");
+  } else {
+    // Wrong: no second try. We show why, and which answer was right.
+    stepMissed = true;
+    currentRecord.wrongAnswers = currentRecord.wrongAnswers + 1;
+    button.classList.add("wrong");
+    highlightChoice(rightChoice);
+    stepMascot.src = STICKERS.wrong;
+    showFeedback("Wrong answer. " + (choice.feedback || "") + " The right answer was highlighted.", "bad");
+    setStepDot("failed");
+    delay = WRONG_STEP_DELAY;
+  }
 
   // Update the drawing of the man: for example "after-call" shows the phone
   victimScene.classList.add("after-" + currentStep.id);
 
+  // The story goes on, with the next step of the right answer
   nextStepId = setTimeout(function () {
-    if (choice.next === "end") {
-      showScreen("tutorial"); // all steps validated: time for compressions
+    if (rightChoice.next === "end") {
+      showScreen("tutorial"); // all steps played: time for compressions
     } else {
-      playStep(choice.next);
+      playStep(rightChoice.next);
     }
-  }, NEXT_STEP_DELAY);
+  }, delay);
+}
+
+// The choice with "correct": true
+function findCorrectChoice(step) {
+  for (const choice of step.choices) {
+    if (choice.correct) {
+      return choice;
+    }
+  }
+  return step.choices[0];
+}
+
+// Shows the right answer (after a wrong click)
+function highlightChoice(choice) {
+  const buttons = choicesBox.querySelectorAll(".choice");
+  for (let i = 0; i < currentStep.choices.length; i++) {
+    if (currentStep.choices[i] === choice) {
+      buttons[i].classList.add("correct");
+    }
+  }
+}
+
+// Colors the dot of the current step: "done" or "failed"
+function setStepDot(status) {
+  const dots = stepMap.querySelectorAll(".step-dot");
+  dots[steps.indexOf(currentStep)].className = "step-dot " + status;
 }
 
 function disableAllChoices() {
@@ -238,6 +292,7 @@ function startTimer(seconds) {
 function timeUp() {
   clearInterval(timerId);
   stepMissed = true;
+  currentRecord.timedOut = true;
   stepMascot.src = STICKERS.tooSlow;
   showFeedback("Time's up! Every second counts. Choose now!", "bad");
 }

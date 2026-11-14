@@ -488,15 +488,37 @@
         <p class="mission-kicker">Mission complete</p>
         <h2 class="screen-title">Emergency handled!</h2>
         <div class="grade-badge"><span id="result-grade">–</span></div>
-        <p class="results-total"><strong id="result-total">0</strong> points</p>
+        <p class="results-total"><strong id="result-total">0</strong> points · <span id="result-grade-label"></span></p>
       </div>
 
-      <div class="result-tiles">
-        <div class="result-tile tile-amber"><span class="tile-label">Fast start</span><strong id="result-speed">0</strong></div>
-        <div class="result-tile tile-blue"><span class="tile-label">Decisions</span><strong id="result-decisions">0</strong></div>
-        <div class="result-tile tile-green"><span class="tile-label">Rhythm</span><strong id="result-rate">0</strong></div>
-        <div class="result-tile tile-red"><span class="tile-label">No pauses</span><strong id="result-pauses">0</strong></div>
-      </div>
+      <!-- The evaluation grid: main.js (drawGrid) fills #eval-body from score.js.
+           Wrong answers, time-outs and doing the wrong thing for a long time all cost points here. -->
+      <table class="eval-grid">
+        <caption>How your grade was calculated</caption>
+        <thead>
+          <tr>
+            <th scope="col">Criterion</th>
+            <th scope="col">Target</th>
+            <th scope="col">Your result</th>
+            <th scope="col">Points</th>
+            <th scope="col">Verdict</th>
+          </tr>
+        </thead>
+        <tbody id="eval-body"></tbody>
+        <tfoot>
+          <tr>
+            <th scope="row">Total</th>
+            <td class="eval-target"></td>
+            <td></td>
+            <td class="eval-points" id="eval-total">0 / 100</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+      <p class="eval-legend">
+        <strong>A</strong> 90+ · <strong>B</strong> 75+ · <strong>C</strong> 60+ · <strong>D</strong> 40+ · <strong>F</strong> below 40.
+        You get one answer per step: a wrong answer is worth 0 and a right answer after the timer is worth half. The rest is measured by your webcam.
+      </p>
 
       <div class="coach">
         <img class="sticker" src="assets/mascot-stickers/15-winking.png" alt="">

@@ -28,7 +28,7 @@ Opening `index.html` by double-clicking does not work: ES modules and the camera
 | `tracking.js` | Webcam and pose detection: counts compressions, rate, pauses, arm straightness. The only file that uses MediaPipe. |
 | `camera.js` | Connects `tracking.js` to the setup and compressions screens: camera button, arm check, live feedback. |
 | `scenario.js` | The steps before CPR, like a game: `loadScript()`, `playStep(id)`, `stopScenario()`. |
-| `score.js` | `computeScore(game)`: turns the game state into a grade. Fake values for now. |
+| `score.js` | `computeScore(game)`: turns the game into a grade out of 100 and the evaluation grid. All the numbers to tune are at the top of the file. |
 | `script.json` | The steps, questions and choices. Draft text, to check with official sources. |
 | `assets/` | Images and sounds. `assets/mascot-stickers/` has the 20 red panda stickers. |
 | `.gitignore` | Files git should ignore. |
@@ -137,6 +137,23 @@ Rules of the steps game: the player must find the right answer to validate a ste
 The results screen is filled by `main.js` with `computeScore(game)`: `result-grade`, `result-total`, `result-speed`, `result-decisions`, `result-rate`, `result-pauses`, `result-tip`.
 
 To work on one screen's design, open `index.html?screen=results` (or any screen name): it jumps straight there.
+
+### Grading (score.js)
+
+The grade is out of 100. Wrong answers, time-outs and doing the wrong thing for a long time all cost points. The results screen shows the whole calculation as a grid.
+
+| Criterion | Points | Rule |
+| --- | --- | --- |
+| The calls | 30 | Split equally between the dispatcher steps. Each step has ONE answer: right and in time = full, right but after the timer = half, wrong = 0 (the game then shows the right answer and moves on). |
+| Fast start | 15 | Time from the collapse to the first compression: full up to 60 s, a straight line down to 0 at 150 s. |
+| Rhythm | 20 | % of compressions done at 100 to 120 per minute. |
+| Depth | 15 | % of compressions that were deep enough. |
+| Straight arms | 10 | % of the time the arms were straight. |
+| Keep going | 10 | Enough compressions (80% of 100 per minute), minus 3 points per pause over 2 s. |
+
+Grades: A 90+, B 75+, C 60+, D 40+, F below 40. The tip is about the criterion where the player lost the most points.
+
+To record the steps, `scenario.js` fills `game.decisionLog` (one `{ id, title, wrongAnswers, timedOut, seconds }` per step) and `main.js` sets `game.compressionSeconds`.
 
 ### script.json format
 

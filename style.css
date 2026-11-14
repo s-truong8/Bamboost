@@ -911,6 +911,7 @@ body[data-screen="results"] main { padding-bottom: 130px; }
 .step-dot + .step-dot { border-left: 0; }
 
 .step-dot.done    { background: var(--surface); color: var(--green); }
+.step-dot.failed  { background: var(--red); color: #ffffff; }
 .step-dot.current { background: var(--ink); color: var(--bg); }
 .step-dot.locked  { background: var(--surface); color: #8a8982; }
 
@@ -1846,4 +1847,117 @@ body[data-screen="setup"] #screen-setup .big-number { text-align: center; font-s
 @media (max-width: 860px) {
   body[data-screen="setup"] main { display: block; }
   body[data-screen="setup"] #camera-box { width: 100%; margin: 0 auto 8px; }
+}
+
+/* ============================================================
+   EVALUATION GRID (results screen): how the grade was calculated
+   ============================================================ */
+body[data-screen="results"] main { max-width: 980px; }
+
+.eval-grid {
+  width: 100%;
+  margin-top: 8px;
+  border: 2px solid var(--ink);
+  border-collapse: collapse;
+  background: var(--surface);
+  text-align: left;
+  font-size: 15px;
+}
+
+.eval-grid caption {
+  padding: 10px 14px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-align: left;
+  text-transform: uppercase;
+  caption-side: top;
+}
+
+.eval-grid thead th {
+  padding: 9px 12px;
+  border-bottom: 2px solid var(--ink);
+  background: var(--surface-2);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.eval-grid th,
+.eval-grid td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.eval-grid tbody th { font-weight: 800; }
+
+.eval-measured {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.eval-target { color: var(--muted); }
+
+.eval-points {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* The small lines under "The calls": one per dispatcher step */
+.eval-sub th,
+.eval-sub td { padding-top: 7px; padding-bottom: 7px; background: #faf9f6; font-size: 14px; }
+.eval-sub th { padding-left: 32px; font-weight: 700; }
+.eval-sub .eval-points { font-size: 15px; }
+
+/* The verdict is always a word, so it never depends on color alone */
+.eval-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border: 2px solid var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.eval-badge.good { background: var(--green); border-color: var(--green); color: #ffffff; }
+.eval-badge.warn { background: var(--amber); color: var(--ink); }
+.eval-badge.bad  { background: var(--red); border-color: var(--red); color: #ffffff; }
+
+.eval-grid tfoot th,
+.eval-grid tfoot td {
+  border-top: 2px solid var(--ink);
+  border-bottom: 0;
+  background: var(--surface-2);
+  font-family: var(--display);
+  font-size: 20px;
+}
+
+.eval-legend {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: left;
+}
+
+.coach { margin-top: 24px; }
+
+@media (max-width: 700px) {
+  .eval-grid { font-size: 14px; }
+  .eval-target,
+  .eval-grid thead th:nth-child(2) { display: none; }
+  .eval-grid th,
+  .eval-grid td { padding: 9px 8px; }
+  .eval-sub th { padding-left: 16px; }
+  .eval-grid tfoot th { font-size: 16px; }
 }

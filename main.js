@@ -18,6 +18,8 @@ export const game = {
   correctDecisions: 0,         // how many dispatcher questions were answered right
   totalDecisions: 0,           // how many dispatcher questions were asked
   compressionStats: null,      // the object returned by stopTracking()
+  compressionSeconds: null,    // how long the compressions last (set when they start)
+  decisionLog: [],             // one line per dispatcher step: { id, title, wrongAnswers, timedOut, seconds }
 };
 
 // Put the game state back to zero before a new game
@@ -28,6 +30,8 @@ function resetGame() {
   game.correctDecisions = 0;
   game.totalDecisions = 0;
   game.compressionStats = null;
+  game.compressionSeconds = null;
+  game.decisionLog = [];
 }
 
 // ============================================================
@@ -114,6 +118,7 @@ function stopAmbulanceTimer() {
 
 function startAmbulanceTimer() {
   stopAmbulanceTimer();
+  game.compressionSeconds = AMBULANCE_DELAY; // score.js needs it to judge "enough compressions"
   const display = document.getElementById("ambulance-countdown");
   const endTime = performance.now() + AMBULANCE_DELAY * 1000;
   display.textContent = AMBULANCE_DELAY;
@@ -149,11 +154,84 @@ function showResults() {
   const score = computeScore(game);
   document.getElementById("result-grade").textContent = score.grade;
   document.getElementById("result-total").textContent = score.total;
-  document.getElementById("result-speed").textContent = score.speed;
-  document.getElementById("result-decisions").textContent = score.decisions;
-  document.getElementById("result-rate").textContent = score.rate;
-  document.getElementById("result-pauses").textContent = score.pauses;
+  document.getElementById("result-grade-label").textContent = score.gradeLabel;
   document.getElementById("result-tip").textContent = score.tip;
+  drawGrid(score);
+}
+
+// The evaluation grid: one line per criterion, and under "The calls"
+// one small line per dispatcher step.
+function drawGrid(score) {
+  const body = document.getElementById("eval-body");
+  body.innerHTML = "";
+
+  for (const row of score.rows) {
+    body.appendChild(makeGridRow(row, false));
+    if (row.id === "calls") {
+      for (const step of score.steps) {
+        body.appendChild(makeGridRow({
+          label: step.label,
+          measured: "",
+          target: "",
+          result: step.result,
+          points: step.points,
+          max: step.max,
+          status: step.status,
+        }, true));
+      }
+    }
+  }
+
+  document.getElementById("eval-total").textContent = score.total + " / 100";
+}
+
+// What the player reads in the last column, next to the colored mark
+const STATUS_WORDS = { good: "Good", warn: "Almost", bad: "Work on it" };
+
+function makeGridRow(row, isSub) {
+  const tr = document.createElement("tr");
+  if (isSub) {
+    tr.className = "eval-sub";
+  }
+
+  // Criterion (and what is measured, in small letters)
+  const nameCell = document.createElement("th");
+  nameCell.scope = "row";
+  nameCell.textContent = row.label;
+  if (row.measured) {
+    const small = document.createElement("span");
+    small.className = "eval-measured";
+    small.textContent = row.measured;
+    nameCell.appendChild(small);
+  }
+  tr.appendChild(nameCell);
+
+  // Target
+  const targetCell = document.createElement("td");
+  targetCell.className = "eval-target";
+  targetCell.textContent = row.target;
+  tr.appendChild(targetCell);
+
+  // Your result
+  const resultCell = document.createElement("td");
+  resultCell.textContent = row.result;
+  tr.appendChild(resultCell);
+
+  // Points
+  const pointsCell = document.createElement("td");
+  pointsCell.className = "eval-points";
+  pointsCell.textContent = row.points + " / " + row.max;
+  tr.appendChild(pointsCell);
+
+  // Status: a colored word (never color alone)
+  const statusCell = document.createElement("td");
+  const badge = document.createElement("span");
+  badge.className = "eval-badge " + row.status;
+  badge.textContent = STATUS_WORDS[row.status];
+  statusCell.appendChild(badge);
+  tr.appendChild(statusCell);
+
+  return tr;
 }
 
 // ============================================================
