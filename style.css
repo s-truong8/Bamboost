@@ -1,0 +1,92 @@
+/* Color theme: change the colors here and the whole app follows. */
+:root {
+  --background: #f4f7f1;
+  --card: #ffffff;
+  --text: #1f2a1f;
+  --muted-text: #5f6b5f;
+  --border: #d5ddd0;
+  --bamboo-green: #3f8f4f;
+  --warning: #b3541e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--background);
+  color: var(--text);
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.safety {
+  font-size: 13px;
+  color: var(--warning);
+}
+
+main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+/* Screens: all hidden, except the one with the class "active". */
+.screen {
+  display: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.screen.active {
+  display: block;
+}
+
+.screen h2 {
+  margin-top: 0;
+  font-size: 28px;
+}
+
+.screen p {
+  color: var(--muted-text);
+}
+
+button {
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: var(--bamboo-green);
+  color: #ffffff;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

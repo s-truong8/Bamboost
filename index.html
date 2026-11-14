@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[APP NAME]</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <h1>[APP NAME]</h1>
+    <span class="safety">Practice on a firm cushion. Never practice on a real person.</span>
+  </header>
+
+  <!-- One <section> per screen. Only the one with the class "active" is visible. -->
+  <!-- Each temporary Next button says where it goes with data-next="...". -->
+  <main>
+
+    <section id="screen-home" class="screen active">
+      <h2>Home</h2>
+      <p>[MASCOT NAME] the panda welcomes the player here.</p>
+      <button class="next-button" data-next="setup">Next</button>
+    </section>
+
+    <section id="screen-setup" class="screen">
+      <h2>Setup (camera check)</h2>
+      <p>The player checks that the webcam sees them and the cushion.</p>
+      <button class="next-button" data-next="tutorial">Next</button>
+    </section>
+
+    <section id="screen-tutorial" class="screen">
+      <h2>Tutorial</h2>
+      <p>[MASCOT NAME] explains how to do chest compressions.</p>
+      <button class="next-button" data-next="scene">Next</button>
+    </section>
+
+    <section id="screen-scene" class="screen">
+      <h2>Scene</h2>
+      <p>A man collapses. The emergency starts.</p>
+      <button class="next-button" data-next="decisions">Next</button>
+    </section>
+
+    <section id="screen-decisions" class="screen">
+      <h2>Decisions</h2>
+      <p>The dispatcher asks questions. The player answers with buttons.</p>
+      <button class="next-button" data-next="compressions">Next</button>
+    </section>
+
+    <section id="screen-compressions" class="screen">
+      <h2>Compressions</h2>
+      <p>The player does chest compressions on a cushion in front of the webcam.</p>
+      <button class="next-button" data-next="ambulance">Next</button>
+    </section>
+
+    <section id="screen-ambulance" class="screen">
+      <h2>Ambulance</h2>
+      <p>The ambulance arrives and takes over.</p>
+      <button class="next-button" data-next="results">Next</button>
+    </section>
+
+    <section id="screen-results" class="screen">
+      <h2>Results</h2>
+      <p>The player sees their grade and one tip.</p>
+      <button class="next-button" data-next="home">Next (back to home)</button>
+    </section>
+
+  </main>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

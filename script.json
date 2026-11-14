@@ -1,0 +1,29 @@
+[
+  {
+    "id": "step-1",
+    "line": "TO FILL FROM OFFICIAL SOURCES: first thing the dispatcher says or asks",
+    "choices": [
+      { "text": "TO FILL FROM OFFICIAL SOURCES: correct answer", "correct": true, "next": "step-2" },
+      { "text": "TO FILL FROM OFFICIAL SOURCES: wrong answer", "correct": false, "feedback": "TO FILL FROM OFFICIAL SOURCES: why this is wrong" }
+    ],
+    "timeLimit": 8
+  },
+  {
+    "id": "step-2",
+    "line": "TO FILL FROM OFFICIAL SOURCES: second thing the dispatcher says or asks",
+    "choices": [
+      { "text": "TO FILL FROM OFFICIAL SOURCES: correct answer", "correct": true, "next": "step-3" },
+      { "text": "TO FILL FROM OFFICIAL SOURCES: wrong answer", "correct": false, "feedback": "TO FILL FROM OFFICIAL SOURCES: why this is wrong" }
+    ],
+    "timeLimit": 8
+  },
+  {
+    "id": "step-3",
+    "line": "TO FILL FROM OFFICIAL SOURCES: third thing the dispatcher says or asks",
+    "choices": [
+      { "text": "TO FILL FROM OFFICIAL SOURCES: correct answer", "correct": true, "next": "end" },
+      { "text": "TO FILL FROM OFFICIAL SOURCES: wrong answer", "correct": false, "feedback": "TO FILL FROM OFFICIAL SOURCES: why this is wrong" }
+    ],
+    "timeLimit": 8
+  }
+]
