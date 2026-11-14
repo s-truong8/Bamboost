@@ -108,7 +108,7 @@ function showSpeaker(speaker) {
     stepSpeaker.textContent = "Dispatcher";
     stepBubble.classList.add("bubble-blue");
   } else {
-    stepSpeaker.textContent = "[MASCOT NAME]";
+    stepSpeaker.textContent = "Pandaid";
     stepBubble.classList.remove("bubble-blue");
   }
 }

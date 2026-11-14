@@ -1,8 +1,8 @@
 # Pandaid CPR
 
-A CPR training game with [MASCOT NAME], a red panda.
+A CPR training game with Pandaid, a red panda.
 
-The home page presents the project. The player clicks "Start the simulation", checks the camera, then a man collapses. Like a game, the player must validate each step before CPR (is it safe, does he respond, is he breathing, the call, the defibrillator), against a timer. Then they do chest compressions on a cushion in front of the webcam, the ambulance arrives and they get a grade.
+The home page presents the project. The player clicks "Start the simulation", checks the camera, then a man collapses. Like a game, the player must validate each step before CPR (is it safe, does he respond, is he breathing, the call, talking to the dispatcher), against a timer. Then they do chest compressions on a cushion in front of the webcam, the ambulance arrives and they get a grade.
 
 Screens, in order: home (presentation page), setup (camera check), scene (the collapse), decisions (the steps before CPR), tutorial (how to push), compressions, ambulance, results.
 
@@ -113,7 +113,7 @@ Notes:
 
 The design is in `style.css` (colors at the top, in `:root`). `showScreen` sets `<body data-screen="...">`, and the CSS uses it to show the right top bar and fill the progress bar.
 
-**Game mode.** On the emergency screens (`scene`, `decisions`, `tutorial`, `compressions`, `ambulance`), `showScreen` adds the class `game-mode` to `<body>`. The drawing `#victim-scene` (a street with the collapsed man) then fills the whole screen, and each screen is a dialogue box at the bottom (`.dialogue`: portrait, name, text, actions). During compressions the camera is a small window in the corner. The drawing changes with classes on `#victim-scene`: `after-<step id>` (added by `scenario.js` when a step is validated: `after-call` shows the phone, `after-defibrillator` the AED) and `press` (added by `camera.js` at each compression).
+**Game mode.** On the emergency screens (`scene`, `decisions`, `tutorial`, `compressions`, `ambulance`), `showScreen` adds the class `game-mode` to `<body>`. The drawing `#victim-scene` (a street with the collapsed man) then fills the whole screen, and each screen is a dialogue box at the bottom (`.dialogue`: portrait, name, text, actions). During compressions the camera is a small window in the corner. The drawing changes with classes on `#victim-scene`: `after-<step id>` (added by `scenario.js` when a step is validated: `after-call` shows the phone) and `press` (added by `camera.js` at each compression).
 
 Elements filled by `scenario.js` (decisions screen):
 
@@ -122,7 +122,7 @@ Elements filled by `scenario.js` (decisions screen):
 | `step-map` | One numbered dot per step: `done`, `current` or `locked`. |
 | `step-title` | "Step 2 of 6: Does he respond?" |
 | `step-mascot` | The red panda sticker: thinking, right, wrong or too slow. |
-| `step-speaker` | "[MASCOT NAME]" or "Dispatcher" (blue bubble). |
+| `step-speaker` | "Pandaid" or "Dispatcher" (blue bubble). |
 | `dispatcher-line` | The question. |
 | `choices` | One `<button class="choice">` per choice. Keys 1, 2, 3 also work. |
 | `decision-timer` | The countdown bar (red for the last 3 seconds). |

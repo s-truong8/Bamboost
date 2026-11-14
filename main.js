@@ -22,7 +22,7 @@ export const game = {
 
 // Put the game state back to zero before a new game
 function resetGame() {
-  document.getElementById("victim-scene").className = ""; // no phone, no defibrillator
+  document.getElementById("victim-scene").className = ""; // no phone
   game.startTime = null;
   game.firstCompressionTime = null;
   game.correctDecisions = 0;
