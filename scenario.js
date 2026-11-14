@@ -4,6 +4,8 @@
 // A step only gives a point if it is right on the first try, before the timer ends.
 
 import { game, showScreen } from "./main.js";
+import { sfx } from "./sfx.js";
+import { say, stopAudio } from "./audio.js";
 
 // Mascot stickers for each reaction
 const STICKERS = {
@@ -15,6 +17,16 @@ const STICKERS = {
 
 const NEXT_STEP_DELAY = 1600;  // milliseconds to enjoy the "validated" message
 const WRONG_STEP_DELAY = 3500; // after a wrong answer: more time to read the feedback and the right answer
+
+// The phone call (step "call"): the phone rings once, then the dispatcher answers.
+// ringing-phone.mp3 starts 0.45 s after the answer and only its first beep is
+// played (1.85 s); the dispatcher speaks 0.25 s after the ring ends, or as soon
+// as the dispatcher step appears if that is later.
+const RING_START = 450;   // milliseconds after the answer
+const RING_LENGTH = 1850; // milliseconds (the first beep)
+const RING_GAP = 250;     // milliseconds of silence before the dispatcher answers
+let ringEndTime = 0;      // performance.now() when the ring ends
+let dispatcherVoiceId = null;
 
 // ============================================================
 // PAGE ELEMENTS
@@ -60,7 +72,7 @@ export function playStep(id) {
     console.error("playStep: there is no step called " + id);
     return;
   }
-  stopScenario();
+  clearTimers();
   currentStep = step;
   stepDone = false;
   stepMissed = false;
@@ -80,6 +92,13 @@ export function playStep(id) {
   stepTitle.textContent = "Step " + (steps.indexOf(step) + 1) + " of " + steps.length + ": " + step.title;
   showSpeaker(step.speaker);
   lineText.textContent = step.line;
+  // The dispatcher answers out loud ("911, what is your emergency?"), after the ring
+  if (step.speaker === "dispatcher") {
+    const wait = Math.max(0, ringEndTime + RING_GAP - performance.now());
+    dispatcherVoiceId = setTimeout(function () {
+      say("dispatcher", { force: true });
+    }, wait);
+  }
   stepMascot.src = STICKERS.thinking;
   showFeedback("", "");
   drawChoices(step);
@@ -88,8 +107,15 @@ export function playStep(id) {
 
 // Stops the timer and the "next step" delay (when the player quits).
 export function stopScenario() {
+  clearTimers();
+  stopAudio(); // the ring or a line of the dispatcher is cut if the player quits
+}
+
+// Timers only: playStep uses this, so the phone ring is not cut between two steps
+function clearTimers() {
   clearInterval(timerId);
   clearTimeout(nextStepId);
+  clearTimeout(dispatcherVoiceId);
 }
 
 // ============================================================
@@ -187,6 +213,7 @@ function pickChoice(choice, button) {
   if (choice.correct) {
     button.classList.add("correct");
     stepMascot.src = STICKERS.right;
+    sfx("correct");
     if (!stepMissed) {
       game.correctDecisions = game.correctDecisions + 1;
     }
@@ -203,6 +230,7 @@ function pickChoice(choice, button) {
     button.classList.add("wrong");
     highlightChoice(rightChoice);
     stepMascot.src = STICKERS.wrong;
+    sfx("wrong");
     showFeedback("Wrong answer. " + (choice.feedback || "") + " The right answer was highlighted.", "bad");
     setStepDot("failed");
     delay = WRONG_STEP_DELAY;
@@ -210,6 +238,14 @@ function pickChoice(choice, button) {
 
   // Update the drawing of the man: for example "after-call" shows the phone
   victimScene.classList.add("after-" + currentStep.id);
+
+  // The phone appears in the scene and rings (right or wrong answer: the story goes on)
+  if (currentStep.id === "call") {
+    ringEndTime = performance.now() + RING_START + RING_LENGTH;
+    setTimeout(function () {
+      say("ringing-phone", { force: true, stopAfter: RING_LENGTH / 1000 });
+    }, RING_START);
+  }
 
   // The story goes on, with the next step of the right answer
   nextStepId = setTimeout(function () {
@@ -276,8 +312,15 @@ function startTimer(seconds) {
   timerFill.style.width = "100%";
   timerFill.classList.remove("urgent");
 
+  let lastTick = null;
   timerId = setInterval(function () {
     const timeLeft = seconds - (performance.now() / 1000 - startTime);
+    // one tick per second during the last 3 seconds
+    const second = Math.ceil(timeLeft);
+    if (timeLeft > 0 && timeLeft <= 3 && second !== lastTick) {
+      sfx("tick");
+    }
+    lastTick = second;
     timerFill.style.width = Math.max(0, (timeLeft / seconds) * 100) + "%";
     if (timeLeft <= 3) {
       timerFill.classList.add("urgent"); // last 3 seconds: red
@@ -294,6 +337,7 @@ function timeUp() {
   stepMissed = true;
   currentRecord.timedOut = true;
   stepMascot.src = STICKERS.tooSlow;
+  sfx("timeup");
   showFeedback("Time's up! Every second counts. Choose now!", "bad");
 }
 

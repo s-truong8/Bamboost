@@ -39,6 +39,15 @@
     <div class="progress" role="presentation"><div class="progress-fill"></div></div>
   </div>
 
+  <!-- Sound on / off (main.js): mutes the sound effects and the panda's voice -->
+  <button id="mute-button" class="icon-button" type="button" aria-label="Sound is on. Turn it off">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/>
+      <path class="mute-waves" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>
+      <path class="mute-slash" d="M16 9l6 6M22 9l-6 6"/>
+    </svg>
+  </button>
+
   <main>
 
     <!-- ============================================================
@@ -237,7 +246,7 @@
         <span class="lens-step" style="--i: 1">2. Heel of one hand on the center</span>
         <span class="lens-step" style="--i: 2">3. Other hand on top</span>
         <span class="lens-step" style="--i: 3">4. Interlace your fingers, lift them off the ribs</span>
-        <span class="lens-step" style="--i: 4">5. Arms straight, push 5 to 6 cm</span>
+        <span class="lens-step" style="--i: 4">5. Arms straight, push at least 5 cm</span>
         <span class="lens-final">Heel on the center, fingers interlaced</span>
       </p>
     </div>
@@ -250,6 +259,38 @@
       <video id="camera-video" autoplay playsinline muted></video>
       <canvas id="camera-canvas"></canvas>
       <p class="camera-safety">Firm cushion only. Never on a real person.</p>
+    </div>
+
+    <!-- THE PANDA COACH, standing in the scene behind the dialogue box.
+         panda.js copies the face of the active screen and moves him on top of the box. -->
+    <img id="scene-panda" src="assets/mascot-stickers/06-shocked.png" alt="">
+
+    <!-- Pop-up: where the advice comes from (opens with the link #sources, from the home
+         page and the results screen). It is outside the screens so it works from anywhere. -->
+    <div class="modal" id="sources">
+      <a class="modal-backdrop" href="#" aria-label="Close"></a>
+      <div class="modal-card" role="dialog" aria-labelledby="sources-title">
+        <p class="card-bar">Sources: Canada</p>
+        <div class="modal-body">
+          <h2 id="sources-title">Where this comes from</h2>
+          <p class="muted sources-intro">The advice in the game follows Canadian first-aid guidance (checked in November 2026):</p>
+          <ul class="sources-facts">
+            <li><strong>Phone 9-1-1</strong> and get an AED (or shout for one). Put the phone on speaker if you are alone. <span class="src">[1] [2]</span></li>
+            <li><strong>Push hard and fast in the centre of the chest</strong>, with two hands for an adult. <span class="src">[1] [2]</span></li>
+            <li><strong>100 to 120 compressions per minute</strong>: the beat you follow on the compressions screen. <span class="src">[1] [2]</span></li>
+            <li><strong>At least 5 cm deep</strong> for an adult, letting the chest come back up between pushes. <span class="src">[2]</span></li>
+            <li><strong>Hands-only CPR</strong> (no breaths) is acceptable for an adult; dispatchers now coach adults this way. <span class="src">[2] [3]</span></li>
+            <li><strong>Don't stop</strong> until help takes over, an AED is found, or the person responds. <span class="src">[1] [2]</span></li>
+          </ul>
+          <ol class="sources-list">
+            <li><a href="https://www.heartandstroke.ca/-/media/pdf-files/cpr/hands-only-cpr-poster-en.pdf" target="_blank" rel="noopener noreferrer">Heart &amp; Stroke Foundation of Canada: Hands-Only CPR, three steps you can handle</a> (poster, 2023)</li>
+            <li><a href="https://cdn.redcross.ca/prodmedia/crc/azure/documents/first-aid-program-2025/fa_cpr_learner_guide_en.pdf" target="_blank" rel="noopener noreferrer">Canadian Red Cross: First Aid &amp; CPR learner guide</a> (2025)</li>
+            <li><a href="https://cpr.heartandstroke.ca/resource/GuidelinesHighlightsEN2025" target="_blank" rel="noopener noreferrer">Heart &amp; Stroke: Highlights of the 2025 AHA Guidelines for CPR and ECC, Canadian edition</a></li>
+          </ol>
+          <p class="muted"><a href="https://www.heartandstroke.ca/how-you-can-help/learn-cpr" target="_blank" rel="noopener noreferrer">Learn CPR &amp; AEDs with Heart &amp; Stroke</a>. Guidelines change: always check the latest edition. This game is a training aid and does not replace a certified first-aid course. It is not affiliated with or endorsed by these organizations.</p>
+          <a class="btn btn-small modal-close" href="#">Close</a>
+        </div>
+      </div>
     </div>
 
     <!-- ============================== HOME: the title screen ============================== -->
@@ -290,6 +331,7 @@
           <div class="title-menu">
             <a class="menu-btn" href="#how">How to play</a>
             <a class="menu-btn" href="#safety">Safety</a>
+            <a class="menu-btn" href="#sources">Sources</a>
           </div>
         </div>
 
@@ -428,7 +470,7 @@
           <ul class="tip-chips">
             <li><svg class="icon"><use href="#i-hands"/></svg>Center of the chest, push hard and fast</li>
             <li><svg class="icon"><use href="#i-arm"/></svg>Straight arms, use your whole body</li>
-            <li><svg class="icon"><use href="#i-beat"/></svg>100 to 120 per minute, don't stop</li>
+            <li><svg class="icon"><use href="#i-beat"/></svg>Follow the beat: one push on every tock (or flash of the red dot), don't stop</li>
           </ul>
           <div class="dialogue-actions">
             <button class="next-button btn btn-red" data-next="compressions">Start compressions</button>
@@ -443,11 +485,18 @@
         <div class="rate-panel">
           <span class="beat" aria-hidden="true"></span>
           <p class="big-number"><span id="live-rate">–</span> <small>/min</small></p>
-          <p class="muted rate-target">Target: 100 to 120</p>
+          <p class="muted rate-target">Push on every beat<br>Target: 100 to 120</p>
         </div>
         <div class="hud-middle">
-          <p id="live-feedback"></p>
-          <p id="live-depth-reminder" class="bad"></p>
+          <!-- The panda coach says the warnings. camera.js changes its face
+               (#live-panda) with the feedback: good, warn or bad -->
+          <div class="live-coach">
+            <img id="live-panda" class="live-panda" src="assets/mascot-stickers/05-cool.png" alt="">
+            <div class="live-bubble">
+              <p id="live-feedback"></p>
+              <p id="live-depth-reminder" class="bad"></p>
+            </div>
+          </div>
           <div class="stats">
             <div class="stat">Compressions<strong id="live-count">0</strong></div>
             <div class="stat">Pauses<strong id="live-pauses">0</strong></div>
@@ -526,7 +575,8 @@
       </div>
 
       <footer class="lesson-footer">
-        <div class="lesson-footer-inner">
+        <div class="lesson-footer-inner results-footer">
+          <a class="link-button" href="#sources">Where does this advice come from?</a>
           <button class="next-button btn" data-next="home">Back to home</button>
         </div>
       </footer>

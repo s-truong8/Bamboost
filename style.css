@@ -1198,8 +1198,8 @@ body.game-mode #lesson-bar {
 }
 
 .dialogue-portrait {
-  width: 110px;
-  height: 110px;
+  width: clamp(130px, 22vh, 190px);
+  height: clamp(130px, 22vh, 190px);
   object-fit: contain;
   flex-shrink: 0;
 }
@@ -1849,7 +1849,7 @@ body[data-screen="setup"] #screen-setup .big-number { text-align: center; font-s
   body[data-screen="setup"] #camera-box { width: 100%; margin: 0 auto 8px; }
 }
 
-/* ============================================================
+/* =====================================================
    EVALUATION GRID (results screen): how the grade was calculated
    ============================================================ */
 body[data-screen="results"] main { max-width: 980px; }
@@ -1961,3 +1961,158 @@ body[data-screen="results"] main { max-width: 980px; }
   .eval-sub th { padding-left: 16px; }
   .eval-grid tfoot th { font-size: 16px; }
 }
+=======
+/* Compressions: the panda coach says the warnings in a speech bubble */
+.live-coach {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.live-panda {
+  width: 92px;
+  height: 92px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.live-panda.talk { animation: panda-hop 0.35s ease-out; }
+
+/* While the voice plays the panda talks: a quick bob, and the bubble glows */
+.live-panda { transform-origin: 50% 100%; }
+.live-panda.speaking { animation: panda-talk 0.28s ease-in-out infinite alternate; }
+@keyframes panda-talk {
+  from { transform: translateY(0) scale(1, 1); }
+  to   { transform: translateY(-4px) scale(0.97, 1.05); }
+}
+.live-bubble { transition: border-color 0.2s, box-shadow 0.2s; }
+.live-bubble.speaking { border-color: var(--mon-green); box-shadow: 0 0 0 3px rgba(59, 224, 138, 0.25); }
+
+@keyframes panda-hop {
+  40% { transform: translateY(-8px) rotate(-4deg); }
+}
+
+.live-bubble {
+  position: relative;
+  flex: 1;
+  min-height: 64px;
+  padding: 8px 14px;
+  border: 2px solid #e8ede9;
+  border-radius: 14px;
+  background: #1d2420;
+}
+
+/* the notch pointing at the panda */
+.live-bubble::before {
+  content: "";
+  position: absolute;
+  left: -9px;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  background: #1d2420;
+  border-left: 2px solid #e8ede9;
+  border-bottom: 2px solid #e8ede9;
+  transform: rotate(45deg);
+}
+
+.hud .live-bubble #live-feedback { min-height: 0; margin: 0; }
+.hud .live-bubble #live-depth-reminder { min-height: 0; margin: 2px 0 0; }
+.hud .live-bubble #live-depth-reminder:empty { display: none; }
+
+@media (max-width: 700px) {
+  .live-panda { width: 60px; height: 60px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-panda.talk, .live-panda.speaking { animation: none; }
+}
+
+/* ============================================================
+   THE PANDA IN THE GAME (panda.js): a big coach standing behind the
+   dialogue box, on the right. The small pictures in the boxes are hidden:
+   they only feed him the right face.
+   ============================================================ */
+#scene-panda {
+  display: none;
+  position: fixed;
+  z-index: 4; /* under the dialogue box (5): the box hides his feet */
+  right: max(24px, calc(50% - 456px));
+  bottom: 220px;
+  width: clamp(150px, 28vh, 250px);
+  height: clamp(150px, 28vh, 250px);
+  object-fit: contain;
+  object-position: bottom;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 8px rgba(20, 20, 20, 0.2));
+  transform-origin: 50% 100%;
+  animation: panda-breathe 3.2s ease-in-out infinite;
+}
+
+body.game-mode #scene-panda { display: block; }
+
+body.game-mode .dialogue-portrait,
+body.game-mode .live-panda { display: none; }
+body.game-mode .live-bubble::before { display: none; }
+
+@keyframes panda-breathe {
+  50% { transform: scale(1.02, 1.035); }
+}
+
+#scene-panda.hop { animation: panda-jump 0.45s ease-out, panda-breathe 3.2s ease-in-out 0.45s infinite; }
+@keyframes panda-jump {
+  30% { transform: translateY(-14px) rotate(-3deg) scale(1.03); }
+  60% { transform: translateY(0) rotate(2deg); }
+}
+
+#scene-panda.speaking { animation: panda-talk-big 0.28s ease-in-out infinite alternate; }
+@keyframes panda-talk-big {
+  from { transform: translateY(0) scale(1, 1); }
+  to   { transform: translateY(-5px) scale(0.97, 1.05); }
+}
+
+@media (max-width: 700px) {
+  #scene-panda { width: 120px; height: 120px; right: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #scene-panda, #scene-panda.hop, #scene-panda.speaking { animation: none; }
+}
+
+/* Sound on / off button, top right of every screen (main.js) */
+#mute-button {
+  position: fixed;
+  top: 14px;
+  right: 16px;
+  z-index: 30;
+}
+#mute-button .mute-slash { display: none; }
+#mute-button.muted .mute-waves { display: none; }
+#mute-button.muted .mute-slash { display: inline; }
+body[data-screen="home"] #mute-button { top: 48px; }
+
+/* The beat dot follows the metronome (main.js adds .on at each beat) */
+.hud .beat { animation: none; }
+.hud .beat.on { animation: beat 0.3s ease-out; }
+.hud .beat.on.accent { box-shadow: 0 0 0 4px rgba(255, 90, 78, 0.35); }
+@media (prefers-reduced-motion: reduce) {
+  .hud .beat.on { animation: none; }
+}
+
+/* Sources pop-up (index.html #sources) */
+.sources-intro { margin: 0 0 12px; }
+.sources-facts { margin: 0 0 16px; padding: 0; list-style: none; border-top: 2px solid var(--ink); }
+.sources-facts li { padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 16px; }
+.sources-facts .src { color: var(--muted); font-family: var(--mono); font-size: 13px; white-space: nowrap; }
+.sources-list { margin: 0 0 12px; padding-left: 22px; font-size: 15px; }
+.sources-list li { padding: 3px 0; }
+.sources-list a, .modal-body .muted a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
+.sources-list a:hover, .modal-body .muted a:hover { color: var(--red); }
+.results-footer { align-items: center; justify-content: space-between; gap: 16px; }
+.results-footer .link-button { font-size: 14px; }
+@media (max-width: 600px) { .results-footer { flex-direction: column-reverse; } }
+.link-button { color: var(--ink); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.link-button:hover { color: var(--red); }

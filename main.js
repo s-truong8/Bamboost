@@ -6,6 +6,8 @@ import { enterSetupScreen, leaveSetupScreen, enterCompressionsScreen, leaveCompr
 
 import { loadScript, playStep, stopScenario } from "./scenario.js";
 import { computeScore } from "./score.js";
+import "./panda.js";
+import { sfx, isMuted, setMuted, onMuteChange, startMetronome, stopMetronome, onBeat } from "./sfx.js";
 
 // ============================================================
 // SHARED GAME STATE
@@ -54,6 +56,7 @@ export function showScreen(name) {
     leaveSetupScreen();
   }
   if (currentScreenName === "compressions") {
+    stopMetronome();
     stopAmbulanceTimer();
     leaveCompressionsScreen(game);
   }
@@ -90,6 +93,7 @@ export function showScreen(name) {
   // The emergency starts: the "fast start" score counts from here
   if (name === "scene") {
     game.startTime = performance.now() / 1000;
+    sfx("alert");
   }
   if (name === "decisions") {
     startSteps();
@@ -97,11 +101,24 @@ export function showScreen(name) {
   if (name === "compressions") {
     enterCompressionsScreen(game);
     startAmbulanceTimer();
+    sfx("go");
+    startMetronome(); // starts 0.3 s later, right after the "go"
+  }
+  if (name === "ambulance") {
+    sfx("siren");
+    setTimeout(function () {
+      if (currentScreenName === "ambulance") {
+        sfx("arrived");
+      }
+    }, 2200);
   }
   if (name === "results") {
     // The camera stays on from the setup screen until the end of the game
     turnOffCamera();
     showResults();
+    // The stamp falls at 0.4 s: a happy jingle for A and B, a short one otherwise
+    const grade = document.getElementById("result-grade").textContent;
+    sfx(grade === "A" || grade === "B" ? "stampGood" : "stampOk");
   }
 }
 
@@ -241,6 +258,7 @@ function makeGridRow(row, isSub) {
 const startButtons = document.querySelectorAll(".start-button");
 for (const button of startButtons) {
   button.addEventListener("click", function () {
+    sfx("start");
     resetGame();
     // The setup screen is the check before each game:
     // if the camera already works, it is not needed.
@@ -273,3 +291,32 @@ const screenFromAddress = new URLSearchParams(window.location.search).get("scree
 if (screenFromAddress !== null) {
   showScreen(screenFromAddress);
 }
+
+// ============================================================
+// MUTE BUTTON (top right): silences the effects and the panda's voice
+// ============================================================
+const muteButton = document.getElementById("mute-button");
+function drawMuteButton() {
+  muteButton.classList.toggle("muted", isMuted());
+  muteButton.setAttribute("aria-label", isMuted() ? "Sound is off. Turn it on" : "Sound is on. Turn it off");
+  muteButton.setAttribute("aria-pressed", isMuted() ? "true" : "false");
+}
+muteButton.addEventListener("click", function () {
+  setMuted(!isMuted());
+  if (!isMuted()) {
+    sfx("click");
+  }
+});
+onMuteChange(drawMuteButton);
+drawMuteButton();
+
+// ============================================================
+// METRONOME: the red dot of the compressions screen pulses with each beat
+// ============================================================
+const beatDot = document.querySelector("#screen-compressions .beat");
+onBeat(function (isAccent) {
+  beatDot.classList.remove("on");
+  void beatDot.offsetWidth; // restart the animation
+  beatDot.classList.add("on");
+  beatDot.classList.toggle("accent", isAccent);
+});

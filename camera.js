@@ -5,6 +5,8 @@
 // main.js calls the 4 functions at the bottom when the player enters or
 // leaves one of these screens.
 
+import { sfx } from "./sfx.js";
+import { say, stopAudio, resetAudio, msSinceLastVoice, onVoiceChange } from "./audio.js";
 import { initTracking, startTracking, stopTracking, stopCamera, setSensitivity, setGoodDepth, getDebugData } from "./tracking.js";
 
 // Same target as in tracking.js: 100 to 120 compressions per minute
@@ -45,6 +47,7 @@ const livePauses = document.getElementById("live-pauses");
 const liveArms = document.getElementById("live-arms");
 const liveDepth = document.getElementById("live-depth");
 const liveDepthReminder = document.getElementById("live-depth-reminder");
+const livePanda = document.getElementById("live-panda");
 
 // ============================================================
 // STATE OF THIS FILE
@@ -55,6 +58,19 @@ let isCounting = false;      // true between startTracking and stopTracking
 let currentScreen = "";      // "setup", "compressions" or "" (another screen)
 let compressionCount = 0;
 let pauseCount = 0;
+// Voice state (compressions screen), so a line plays when something CHANGES
+const ENCOURAGE_EVERY = 15;   // seconds of good work between two encouragements
+const REPEAT_RATE_WARNING = 10; // seconds before "Faster!" or "Slower" is said again
+let rateState = null;         // "slow", "fast", "ok" or null (not known yet)
+let lastRateWarning = 0;      // performance.now() of the last "Faster!"/"Slower"
+let tooShallowNow = false;
+let armsBent = false;
+let armVisible = true;
+let lastCompressionTime = 0;  // performance.now()
+let encouragementTimer = null;
+let encouragementIndex = 0;
+const ENCOURAGEMENTS = ["You're doing great!", "Amazing, keep going!", "You're keeping them alive!"];
+let wasTooShallow = false; // true after a "Push deeper!", so we can say "That's the right depth!"
 
 // ============================================================
 // TURNING ON THE CAMERA (setup screen)
@@ -118,6 +134,7 @@ function startSetupCheck() {
       }
     },
     onCompression: function () {
+      sfx("thump");
       compressionCount = compressionCount + 1;
       setupCount.textContent = compressionCount;
     },
@@ -261,11 +278,24 @@ function startLiveFeedback(game) {
   liveDepth.textContent = "–";
   liveDepth.className = "";
   liveDepthReminder.textContent = "";
-  showFeedback("Push hard and fast in the center of the cushion.", "");
+  updatePanda();
+  wasTooShallow = false;
+  rateState = null;
+  tooShallowNow = false;
+  armsBent = false;
+  armVisible = true;
+  lastCompressionTime = 0;
+  encouragementIndex = 0;
+  resetAudio();
+  say("start-compressions", { force: true });
+  startEncouragement();
+  showFeedback("Place your hands in the center of the chest and push hard and fast!", "");
 
   startTracking({
     onCompression: function (time) {
       pressVictimChest();
+      sfx("thump");
+      lastCompressionTime = performance.now();
       compressionCount = compressionCount + 1;
       liveCount.textContent = compressionCount;
       // Remember when the very first compression happened (used for the score)
@@ -275,32 +305,56 @@ function startLiveFeedback(game) {
     },
     onRate: function (rate) {
       liveRate.textContent = Math.round(rate);
+      let newState = "ok";
       if (rate < TARGET_MIN) {
-        showFeedback("Faster", "warn");
+        newState = "slow";
+        showFeedback("Faster!", "warn");
       } else if (rate > TARGET_MAX) {
-        showFeedback("Slower", "warn");
+        newState = "fast";
+        showFeedback("A bit slower.", "warn");
       } else {
-        showFeedback("Good rhythm", "good");
+        showFeedback("Good rhythm, keep it up!", "good");
+      }
+      // Voice: when the state changes, or the problem lasts
+      const now = performance.now();
+      const stillWrong = newState !== "ok" && now - lastRateWarning > REPEAT_RATE_WARNING * 1000;
+      if (newState !== rateState || stillWrong) {
+        if (newState === "slow") {
+          if (say("faster")) { lastRateWarning = now; }
+        } else if (newState === "fast") {
+          if (say("slower")) { lastRateWarning = now; }
+        } else if (rateState === "slow" || rateState === "fast") {
+          say("good-rhythm");
+        }
+        rateState = newState;
       }
     },
     onPause: function () {
       liveRate.textContent = "–"; // the old rate is no longer true
       pauseCount = pauseCount + 1;
       livePauses.textContent = pauseCount;
-      showFeedback("Keep going!", "bad");
+      showFeedback("Don't stop, keep going!", "bad");
+      rateState = null; // the old rhythm is no longer true
+      say("keep-going");
     },
     onArmStatus: function (isStraight) {
       if (isStraight) {
         liveArms.textContent = "Straight";
         liveArms.className = "good";
+        armsBent = false;
       } else {
+        armsBent = true;
+        say("straighten-arms");
         liveArms.textContent = "Bent";
         liveArms.className = "warn";
+        showFeedback("Keep your arms straight.", "warn");
       }
     },
     onArmDetected: function (isDetected) {
+      armVisible = isDetected;
       if (!isDetected) {
-        showFeedback("I can't see your arm. Turn your side to the camera.", "warn");
+        showFeedback("I can't see your arms. Turn your side to the camera.", "warn");
+        say("cant-see-arm");
       }
     },
     // Separate line from the rhythm feedback, so "Push deeper!" stays
@@ -309,15 +363,51 @@ function startLiveFeedback(game) {
       if (isDeepEnough) {
         liveDepth.textContent = "Good";
         liveDepth.className = "good";
-        liveDepthReminder.textContent = "";
+        // Praise only right after a "Push deeper!"
+        liveDepthReminder.textContent = wasTooShallow ? "That's the right depth!" : "";
+        liveDepthReminder.className = "good";
+        updatePanda();
+        if (wasTooShallow) {
+          say("good-depth");
+        }
+        wasTooShallow = false;
+        tooShallowNow = false;
       } else {
+        wasTooShallow = true;
+        tooShallowNow = true;
+        say("push-deeper");
+        liveDepthReminder.className = "bad";
         liveDepth.textContent = "Too shallow";
         liveDepth.className = "warn";
         liveDepthReminder.textContent = "Push deeper!";
+        updatePanda();
       }
     },
   });
   isCounting = true;
+}
+
+// Every ENCOURAGE_EVERY seconds without any voice line, if the player is
+// doing everything right, one of the 3 "doing great" lines (in turn)
+function startEncouragement() {
+  stopEncouragement();
+  encouragementTimer = setInterval(function () {
+    const compressingNow = performance.now() - lastCompressionTime < 2000;
+    const allGood = rateState === "ok" && !tooShallowNow && !armsBent && armVisible;
+    if (compressingNow && allGood && msSinceLastVoice() > ENCOURAGE_EVERY * 1000) {
+      const line = ENCOURAGEMENTS[encouragementIndex];
+      if (say("doing-great-" + (encouragementIndex + 1))) {
+        // the panda says it, so the bubble shows it too
+        showFeedback(line, "good");
+      }
+      encouragementIndex = (encouragementIndex + 1) % 3;
+    }
+  }, 1000);
+}
+
+function stopEncouragement() {
+  clearInterval(encouragementTimer);
+  encouragementTimer = null;
 }
 
 // The chest of the man in the drawing goes down for one compression,
@@ -335,6 +425,40 @@ function pressVictimChest() {
 function showFeedback(text, colorClass) {
   liveFeedback.textContent = text;
   liveFeedback.className = colorClass;
+  updatePanda();
+}
+
+// The panda on the compressions screen makes a face that matches the
+// worst message shown: "Push deeper!" or a red feedback = shocked, etc.
+const PANDA_FACES = {
+  bad: "06-shocked.png",
+  warn: "10-nervous.png",
+  good: "13-proud.png",
+  "": "05-cool.png",
+};
+
+// While a voice line plays, the panda "talks": it bobs and its bubble lights up
+// (the .speaking class, see style.css). It stops when the line ends.
+onVoiceChange(function (isTalking) {
+  livePanda.classList.toggle("speaking", isTalking);
+  const bubble = livePanda.parentElement.querySelector(".live-bubble");
+  bubble.classList.toggle("speaking", isTalking);
+});
+
+function updatePanda() {
+  let mood = liveFeedback.className;
+  if (liveDepthReminder.textContent !== "" && liveDepthReminder.className === "bad") {
+    mood = "bad";
+  }
+  const file = PANDA_FACES[mood] || PANDA_FACES[""];
+  const src = "assets/mascot-stickers/" + file;
+  if (!livePanda.src.endsWith(src)) {
+    livePanda.src = src;
+    // a little hop each time the panda changes its face
+    livePanda.classList.remove("talk");
+    void livePanda.offsetWidth;
+    livePanda.classList.add("talk");
+  }
 }
 
 // ============================================================
@@ -394,6 +518,8 @@ export function enterCompressionsScreen(game) {
 export function leaveCompressionsScreen(game) {
   currentScreen = "";
   cameraBox.classList.remove("visible");
+  stopEncouragement();
+  stopAudio();
   if (isCounting) {
     game.compressionStats = stopTracking();
     isCounting = false;
