@@ -2146,7 +2146,7 @@ body.debug #debug-panel { display: block; }
    never covers the dialogue box (about 460px of the height is taken by
    the top bar and the tutorial box) */
 body[data-screen="tutorial"] #hands-lens {
-  --lens: clamp(170px, calc(100vh - 470px), 400px);
+  --lens: clamp(160px, calc(100vh - 510px), 400px);
 }
 
 /* Tutorial: the "Hands here" label sits behind the dialogue box there,
@@ -2202,6 +2202,22 @@ body.game-mode[data-screen="compressions"] .live-bubble::before { display: block
   #screen-results .eval-legend  { grid-area: legend; margin-top: 8px; }
   #screen-results > .coach      { grid-area: tip; align-self: start; flex-direction: column; align-items: flex-start; }
   #screen-results > .coach .bubble::before { left: 30px; top: -9px; margin: 0; transform: rotate(135deg); }
+
+  /* The Target column made every row 3 or 4 lines tall: the legend and the
+     criterion descriptions already say what is expected */
+  #screen-results .eval-grid th:nth-child(2),
+  #screen-results .eval-grid td:nth-child(2) { display: none; }
+
+  /* One panda is enough: the tip bubble goes without its own sticker */
+  #screen-results > .coach .sticker { display: none; }
+  #screen-results > .coach .bubble::before { display: none; }
+  #screen-results > .coach { margin-top: 16px; }
+
+  /* Tighter rows */
+  #screen-results .eval-grid th,
+  #screen-results .eval-grid td { padding-top: 9px; padding-bottom: 9px; }
+  #screen-results .eval-legend { font-size: 13px; }
+  body[data-screen="results"] main { padding-bottom: 84px; }
 }
 
 /* Short laptop screens: drop the small descriptions under each criterion */
