@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pandaid CPR</title>
+  <meta name="description" content="A CPR training game: make the right calls, then do chest compressions on a cushion while your webcam coaches you.">
+  <link rel="icon" type="image/png" href="assets/mascot-stickers/02-excited.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
@@ -140,7 +142,10 @@
           </g>
           <rect x="80" y="98" width="12" height="12" fill="#e9b88f"/>
           <circle cx="66" cy="100" r="18" fill="#f1c7a3"/>
-          <path d="M50 92 Q58 78 76 84 Q66 86 60 96 Z" fill="#5a3a24"/>
+          <!-- hair: follows the top of the head (circle at 66,100, radius 18), from the
+               back of the head to above the forehead; the hairline stays above the eye -->
+          <path d="M48.3 103.1 A18 18 0 0 1 79.8 88.4 Q66 92 50.5 104.5 Z" fill="#5a3a24"/>
+          <path d="M54 90 Q60 83 70 84" fill="none" stroke="#7a5236" stroke-width="2" stroke-linecap="round"/>
           <path d="M60 101 q4 3 8 0" fill="none" stroke="#3b2416" stroke-width="2" stroke-linecap="round"/>
 
           <!-- the alert sign, until help arrives -->
@@ -460,7 +465,7 @@
     </section>
 
     <!-- ============================== TUTORIAL: how to push ============================== -->
-    <!-- TO CHECK WITH OFFICIAL SOURCES: the text of the 3 tips. -->
+    <!-- The 3 tips follow the sources in the #sources pop-up (centre of the chest, at least 5 cm, 100 to 120 per minute). -->
     <section id="screen-tutorial" class="screen game-screen">
       <div class="dialogue bubble-blue">
         <img class="dialogue-portrait" src="assets/mascot-stickers/01-happy.png" alt="">
@@ -468,7 +473,7 @@
           <p class="dialogue-name">Dispatcher</p>
           <p class="dialogue-text">Every step is validated. Now start chest compressions. Remember:</p>
           <ul class="tip-chips">
-            <li><svg class="icon"><use href="#i-hands"/></svg>Center of the chest, push hard and fast</li>
+            <li><svg class="icon"><use href="#i-hands"/></svg>Center of the chest, push hard: at least 5 cm</li>
             <li><svg class="icon"><use href="#i-arm"/></svg>Straight arms, use your whole body</li>
             <li><svg class="icon"><use href="#i-beat"/></svg>Follow the beat: one push on every tock (or flash of the red dot), don't stop</li>
           </ul>

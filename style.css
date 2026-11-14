@@ -2116,3 +2116,19 @@ body[data-screen="home"] #mute-button { top: 48px; }
 @media (max-width: 600px) { .results-footer { flex-direction: column-reverse; } }
 .link-button { color: var(--ink); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 .link-button:hover { color: var(--red); }
+
+/* The phone shakes while it rings (scenario.js adds .phone-ringing to #victim-scene) */
+#victim-scene.after-call.phone-ringing #victim-phone {
+  animation: phone-shake 0.09s linear infinite alternate;
+  transform-box: fill-box;
+  transform-origin: 50% 70%;
+}
+
+@keyframes phone-shake {
+  from { transform: translate(-1.2px, 0) rotate(-9deg); }
+  to   { transform: translate(1.2px, -0.6px) rotate(9deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #victim-scene.after-call.phone-ringing #victim-phone { animation: none; }
+}

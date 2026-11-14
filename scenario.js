@@ -27,6 +27,8 @@ const RING_LENGTH = 1850; // milliseconds (the first beep)
 const RING_GAP = 250;     // milliseconds of silence before the dispatcher answers
 let ringEndTime = 0;      // performance.now() when the ring ends
 let dispatcherVoiceId = null;
+let ringStartId = null;   // starts the ring (and the shaking of the phone)
+let ringStopId = null;    // ends the shaking, when the ring ends
 
 // ============================================================
 // PAGE ELEMENTS
@@ -108,7 +110,14 @@ export function playStep(id) {
 // Stops the timer and the "next step" delay (when the player quits).
 export function stopScenario() {
   clearTimers();
+  clearTimeout(ringStartId);
+  stopPhoneShake();
   stopAudio(); // the ring or a line of the dispatcher is cut if the player quits
+}
+
+function stopPhoneShake() {
+  clearTimeout(ringStopId);
+  victimScene.classList.remove("phone-ringing");
 }
 
 // Timers only: playStep uses this, so the phone ring is not cut between two steps
@@ -242,8 +251,12 @@ function pickChoice(choice, button) {
   // The phone appears in the scene and rings (right or wrong answer: the story goes on)
   if (currentStep.id === "call") {
     ringEndTime = performance.now() + RING_START + RING_LENGTH;
-    setTimeout(function () {
+    clearTimeout(ringStartId);
+    clearTimeout(ringStopId);
+    ringStartId = setTimeout(function () {
       say("ringing-phone", { force: true, stopAfter: RING_LENGTH / 1000 });
+      victimScene.classList.add("phone-ringing"); // the phone shakes (style.css)
+      ringStopId = setTimeout(stopPhoneShake, RING_LENGTH);
     }, RING_START);
   }
 

@@ -2,7 +2,7 @@
 
 A CPR training game with Pandaid, a red panda.
 
-The home page presents the project. The player clicks "Start the simulation", checks the camera, then a man collapses. Like a game, the player must validate each step before CPR (is it safe, does he respond, is he breathing, the call, talking to the dispatcher), against a timer. Then they do chest compressions on a cushion in front of the webcam, the ambulance arrives and they get a grade.
+The home page presents the project. The player clicks "Play", checks the camera, then a man collapses. Like a game, the player must validate each step before CPR (is it safe, does he respond, is he breathing, the call, talking to the dispatcher), against a timer. Then they do chest compressions on a cushion in front of the webcam, the ambulance arrives and they get a grade.
 
 Screens, in order: home (presentation page), setup (camera check), scene (the collapse), decisions (the steps before CPR), tutorial (how to push), compressions, ambulance, results.
 
@@ -29,7 +29,7 @@ Opening `index.html` by double-clicking does not work: ES modules and the camera
 | `camera.js` | Connects `tracking.js` to the setup and compressions screens: camera button, arm check, live feedback. |
 | `scenario.js` | The steps before CPR, like a game: `loadScript()`, `playStep(id)`, `stopScenario()`. |
 | `score.js` | `computeScore(game)`: turns the game into a grade out of 100 and the evaluation grid. All the numbers to tune are at the top of the file. |
-| `script.json` | The steps, questions and choices. Draft text, to check with official sources. |
+| `script.json` | The steps, questions and choices. Checked against the Canadian sources listed below. |
 | `assets/` | Images and sounds. `assets/mascot-stickers/` has the 20 red panda stickers. |
 | `.gitignore` | Files git should ignore. |
 
@@ -115,7 +115,7 @@ The design is in `style.css` (colors at the top, in `:root`). `showScreen` sets 
 
 **Game mode.** On the emergency screens (`scene`, `decisions`, `tutorial`, `compressions`, `ambulance`), `showScreen` adds the class `game-mode` to `<body>`. The drawing `#victim-scene` (a street with the collapsed man) then fills the whole screen, and each screen is a dialogue box at the bottom (`.dialogue`: portrait, name, text, actions). During compressions the camera is a small window in the corner. The drawing changes with classes on `#victim-scene`: `after-<step id>` (added by `scenario.js` when a step is validated: `after-call` shows the phone) and `press` (added by `camera.js` at each compression).
 
-**Zoom circle.** On the same two screens, a round window (`#hands-lens`, top-left) shows a close-up of the chest from above: hands stacked, fingers interlaced, the heel of the hand on the center of the chest. Its hands dip at each compression. It is hidden on screens narrower than 1000 px. The hand placement follows the centre-of-the-chest guidance in the references below.
+**Zoom circle.** On the same two screens, a round window (`#hands-lens`, top-left) shows a close-up of the chest from above (head on the left), with the breastbone, the nipple line and the target. On the tutorial it loops a 5-step animation (find the center, heel of one hand, other hand on top, interlace the fingers, push), with a caption per step (`.lens-step`). During compressions it shows the final position and its hands dip at each compression. It is hidden on screens narrower than 1000 px. The hand placement follows the centre-of-the-chest guidance in the references below.
 
 **Sound effects (sfx.js).** No sound files: each effect is a few notes made with the Web Audio API. `sfx("correct")` plays one (list: the `EFFECTS` object). They are called from `main.js` (screens, ambulance countdown, results grade), `scenario.js` (right and wrong answers, the step timer ticks) and `camera.js` (one soft thump per counted compression). The speaker button at the top right (`#mute-button`) mutes the effects and the panda's voice, and the choice is remembered. Browsers only allow sound after a click, so the audio starts at the first click.
 
@@ -132,7 +132,7 @@ Elements filled by `scenario.js` (decisions screen):
 | Id | What goes there |
 | --- | --- |
 | `step-map` | One numbered dot per step: `done`, `current` or `locked`. |
-| `step-title` | "Step 2 of 6: Does he respond?" |
+| `step-title` | "Step 2 of 5: Does he respond?" |
 | `step-mascot` | The red panda sticker: thinking, right, wrong or too slow. |
 | `step-speaker` | "Pandaid" or "Dispatcher" (blue bubble). |
 | `dispatcher-line` | The question. |
@@ -187,7 +187,7 @@ A list of steps. Each step:
 
 `"next": "end"` on the last step means "all steps are validated": the game goes to the tutorial, then the compressions. The first step of the file is the first step of the game.
 
-All medical content must come from official sources. The current steps are a DRAFT: check every line, and the emergency number of your country (the draft uses 911), against official guidelines (for example ERC or AHA Basic Life Support).
+All medical content must come from official sources. The current steps follow the Canadian references below (emergency number 9-1-1). If you adapt the game for another country, change the emergency number and check every line against that country's guidelines.
 
 ## References (Canada)
 

@@ -57,7 +57,7 @@
     "source": "Heart & Stroke Foundation of Canada, 2025 Highlights, Canadian edition: dispatchers guide lay rescuers through Hands-Only CPR for adults.",
     "line": "911, what is your emergency?",
     "choices": [
-      {"text": "A man collapsed. He doesn't respond and isn't breathing normally. We're at [address].", "correct": true, "next": "end", "feedback": "Clear and complete: what happened, his state, and where you are. Now, start compressions!"},
+      {"text": "A man collapsed. He doesn't respond and isn't breathing normally. We're at 1450 Rue Guy, Montréal, QC H3H 0A1.", "correct": true, "next": "end", "feedback": "Clear and complete: what happened, his state, and where you are. Now, start compressions!"},
       {"text": "Hurry, come quickly!", "correct": false, "feedback": "The dispatcher needs details: what happened, his state, and your address."}
     ],
     "timeLimit": 10
