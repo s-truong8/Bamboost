@@ -3,29 +3,31 @@
    Each button color has a darker "shadow" color for the 3D bottom edge.
    ============================================================ */
 :root {
-  --bg: #121b17;
-  --surface: #18241f;
-  --surface-2: #1f2e27;
-  --border: #2c3d35;
-  --text: #edf3ee;
-  --muted: #8fa398;
+  --bg: #fff8ef;           /* cream page */
+  --surface: #ffffff;      /* cards and bubbles */
+  --surface-2: #f6ebdd;
+  --border: #ecdcc9;
+  --text: #3b2416;         /* dark brown, like the panda's paws */
+  --muted: #8a6f5c;
 
-  --green: #46c46f;
-  --green-shadow: #2d8a4b;
-  --blue: #3fa2ff;
-  --blue-shadow: #2672bd;
-  --red: #ff5b61;
-  --red-shadow: #c23a40;
-  --amber: #ffb72b;
-  --amber-shadow: #c48613;
-  --locked: #2a3631;
-  --locked-shadow: #1c2521;
-  --locked-icon: #52665c;
+  --orange: #f47b20;       /* the red panda: main brand color */
+  --orange-shadow: #c25a0c;
+  --green: #3fb867;
+  --green-shadow: #2b8a4a;
+  --blue: #3d8bfd;
+  --blue-shadow: #2563c4;
+  --red: #ef4b4b;
+  --red-shadow: #b93030;
+  --amber: #ffb02e;
+  --amber-shadow: #c98200;
+  --locked: #efe3d5;
+  --locked-shadow: #dccbb8;
+  --locked-icon: #b39f8b;
 
-  /* Text colors for live feedback (used by camera.js classes) */
-  --good: #5fd68a;
-  --warn: #ffb72b;
-  --bad: #ff6b6b;
+  /* Text colors for live feedback (used by camera.js and scenario.js classes) */
+  --good: #23874a;
+  --warn: #b86e00;
+  --bad: #d63a3a;
 
   --radius: 16px;
   --font: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -70,14 +72,6 @@ p {
   flex-shrink: 0;
 }
 
-.panda {
-  width: 96px;
-  height: 96px;
-  flex-shrink: 0;
-}
-
-.panda-small { width: 64px; height: 64px; }
-.panda-big { width: 140px; height: 140px; }
 
 /* ============================================================
    BUTTONS: chunky, with a darker bottom edge that "presses" on click
@@ -98,7 +92,7 @@ button {
   border-radius: var(--radius);
   background: var(--green);
   box-shadow: 0 5px 0 var(--green-shadow);
-  color: #0c2015;
+  color: #ffffff;
   font-size: 16px;
   font-weight: 900;
   letter-spacing: 0.8px;
@@ -113,8 +107,18 @@ button {
   box-shadow: 0 0 0 var(--green-shadow);
 }
 
-.btn-blue { background: var(--blue); box-shadow: 0 5px 0 var(--blue-shadow); color: #06203a; }
-.btn-red  { background: var(--red);  box-shadow: 0 5px 0 var(--red-shadow);  color: #3a0a0c; }
+.btn-blue   { background: var(--blue);   box-shadow: 0 5px 0 var(--blue-shadow); }
+.btn-red    { background: var(--red);    box-shadow: 0 5px 0 var(--red-shadow); }
+.btn-orange { background: var(--orange); box-shadow: 0 5px 0 var(--orange-shadow); }
+
+.btn-red:active    { box-shadow: 0 0 0 var(--red-shadow); }
+.btn-blue:active   { box-shadow: 0 0 0 var(--blue-shadow); }
+.btn-orange:active { box-shadow: 0 0 0 var(--orange-shadow); }
+
+.btn-big {
+  padding: 18px 34px;
+  font-size: 18px;
+}
 
 .btn:disabled {
   background: var(--locked);
@@ -145,35 +149,8 @@ button {
 }
 
 /* ============================================================
-   TOP BARS
-   The home header shows on the home screen, the lesson bar on all others.
+   TOP BAR: shown on all screens except the home page
    ============================================================ */
-#home-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 20px 16px 0;
-}
-
-.logo {
-  font-size: 30px;
-  font-weight: 900;
-  color: var(--green);
-  letter-spacing: -0.5px;
-}
-
-.safety-pill {
-  padding: 6px 14px;
-  border: 2px solid var(--border);
-  border-radius: 999px;
-  font-size: 13px;
-  color: var(--amber);
-}
-
 #lesson-bar {
   display: none;
   align-items: center;
@@ -183,7 +160,6 @@ button {
   padding: 20px 16px 4px;
 }
 
-body:not([data-screen="home"]) #home-header { display: none; }
 body:not([data-screen="home"]) #lesson-bar { display: flex; }
 
 .progress {
@@ -204,10 +180,10 @@ body:not([data-screen="home"]) #lesson-bar { display: flex; }
   transition: width 0.5s ease;
 }
 
-body[data-screen="setup"] .progress-fill        { width: 12%; }
-body[data-screen="tutorial"] .progress-fill     { width: 28%; }
-body[data-screen="scene"] .progress-fill        { width: 44%; }
-body[data-screen="decisions"] .progress-fill    { width: 60%; }
+body[data-screen="setup"] .progress-fill        { width: 10%; }
+body[data-screen="scene"] .progress-fill        { width: 25%; }
+body[data-screen="decisions"] .progress-fill    { width: 45%; }
+body[data-screen="tutorial"] .progress-fill     { width: 62%; }
 body[data-screen="compressions"] .progress-fill { width: 78%; }
 body[data-screen="ambulance"] .progress-fill    { width: 92%; }
 body[data-screen="results"] .progress-fill      { width: 100%; }
@@ -327,182 +303,214 @@ body[data-screen="home"] main {
 .bubble-blue .bubble-name { color: var(--blue); }
 
 /* ============================================================
-   HOME: banner, path of steps, side cards
+   MASCOT STICKERS (PNG images in assets/mascot-stickers)
    ============================================================ */
-.home-layout {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 40px;
-  align-items: start;
+.sticker {
+  width: 104px;
+  height: 104px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
-.unit-banner {
-  padding: 20px 24px;
-  border-radius: var(--radius);
-  background: var(--green);
-  box-shadow: 0 5px 0 var(--green-shadow);
-  color: #0c2015;
-}
+.sticker-small { width: 120px; height: 120px; }
+.sticker-big   { width: 150px; height: 150px; }
 
-.unit-banner h2 { font-size: 26px; }
-.unit-banner p  { font-weight: 700; }
-
-.unit-kicker {
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  opacity: 0.7;
-}
-
-.divider-title {
+/* ============================================================
+   HOME: the presentation page
+   ============================================================ */
+.site-nav {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  margin: 32px 0 8px;
+  padding: 4px 0 8px;
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--orange);
+  letter-spacing: -0.5px;
+}
+
+.nav-link,
+.link-button {
   color: var(--muted);
-  font-size: 18px;
+  font-weight: 800;
+  text-decoration: none;
 }
 
-.divider-title::before,
-.divider-title::after {
-  content: "";
-  flex: 1;
-  height: 2px;
-  background: var(--border);
+.nav-link:hover,
+.link-button:hover { color: var(--orange); }
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 32px;
+  align-items: center;
+  padding: 40px 0 56px;
 }
 
-.path-area {
-  position: relative;
-  padding: 76px 0 20px;
+.kicker {
+  margin-bottom: 10px;
+  color: var(--orange);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
 }
 
-.path {
+.hero h1 {
+  font-size: 52px;
+  line-height: 1.05;
+  letter-spacing: -1px;
+}
+
+.hero-lead {
+  max-width: 34em;
+  margin: 18px 0 28px;
+  color: var(--muted);
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+}
+
+.hero-note {
+  margin-top: 18px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.hero-mascot {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 26px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  gap: 18px;
 }
 
-.path-step {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  transform: translateX(var(--shift));
+.sticker-hero {
+  width: 280px;
+  height: 280px;
+  animation: bob 2.4s ease-in-out infinite;
 }
 
-.path-node {
-  display: grid;
-  place-items: center;
-  width: 76px;
-  height: 68px;
-  padding: 0;
-  border: none;
-  border-radius: 50%;
-  background: var(--green);
-  box-shadow: 0 7px 0 var(--green-shadow);
-  color: #ffffff;
+/* On the home page, the bubble points down at the mascot */
+.bubble-hero {
+  flex: none;
+  max-width: 300px;
+  text-align: center;
 }
 
-.path-node .icon { width: 32px; height: 32px; stroke-width: 2.8; }
-
-.path-node.current {
-  outline: 6px solid rgba(70, 196, 111, 0.25);
-  outline-offset: 6px;
-  transition: transform 0.05s, box-shadow 0.05s;
-}
-
-.path-node.current:active {
-  transform: translateY(7px);
-  box-shadow: 0 0 0 var(--green-shadow);
-}
-
-.path-node.locked {
-  background: var(--locked);
-  box-shadow: 0 7px 0 var(--locked-shadow);
-  color: var(--locked-icon);
-}
-
-.path-node.chest { border-radius: 20px; }
-
-.path-label {
-  font-size: 13px;
-  color: var(--muted);
-}
-
-/* The "START" bubble that bobs above the current step */
-.start-bubble {
-  position: absolute;
-  top: -60px;
-  padding: 6px 14px;
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  background: var(--bg);
-  color: var(--green);
-  font-size: 15px;
-  font-weight: 900;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  white-space: nowrap;
-  animation: bob 1.4s ease-in-out infinite;
-}
-
-.start-bubble::after {
-  content: "";
-  position: absolute;
+.bubble-hero::before {
   left: 50%;
-  bottom: -8px;
-  width: 12px;
-  height: 12px;
-  margin-left: -6px;
-  background: var(--bg);
-  border-right: 2px solid var(--border);
-  border-bottom: 2px solid var(--border);
-  transform: rotate(45deg);
+  top: auto;
+  bottom: -9px;
+  margin: 0 0 0 -7px;
+  transform: rotate(-45deg);
 }
 
 @keyframes bob {
   0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-5px); }
+  50%      { transform: translateY(-8px); }
 }
 
-.path-mascot {
-  position: absolute;
-  left: 8%;
-  top: 170px;
-  width: 150px;
+.home-section {
+  padding: 40px 0;
+  border-top: 2px solid var(--border);
 }
 
-.home-side {
+.home-section h2,
+.final-cta h2 {
+  margin-bottom: 14px;
+  font-size: 30px;
+}
+
+.home-section p + p { margin-top: 12px; }
+
+.why {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  font-size: 18px;
+}
+
+.sticker-side { width: 170px; height: 170px; }
+
+.stat-card {
+  display: inline-block;
+  margin-top: 20px !important;
+  padding: 14px 20px;
+  border-left: 6px solid var(--orange);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.stat-card strong {
+  color: var(--orange);
+  font-size: 22px;
+}
+
+.section-title { text-align: center; }
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feature {
+  padding: 20px;
+  border: 2px solid var(--border);
+  border-bottom-width: 5px;
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.feature h3 {
+  margin: 12px 0 6px;
+  font-size: 18px;
+}
+
+.feature-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+}
+
+.feature-icon .icon { width: 28px; height: 28px; }
+
+.two-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
 
 .card {
-  padding: 20px;
+  padding: 22px;
   border: 2px solid var(--border);
   border-radius: var(--radius);
+  background: var(--surface);
 }
 
 .card h3 {
-  margin-bottom: 8px;
-  font-size: 19px;
+  margin-bottom: 10px;
+  font-size: 20px;
 }
 
-.card-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
+.card p + p { margin-top: 8px; }
 
-.card-warning { border-color: var(--amber-shadow); }
-.card-warning h3 { color: var(--amber); }
+.card-warning { border-color: var(--amber); }
+.card-warning h3 { color: var(--warn); }
 
 .checklist {
   display: flex;
@@ -511,7 +519,6 @@ body[data-screen="home"] main {
   margin: 0;
   padding: 0;
   list-style: none;
-  font-weight: 700;
 }
 
 .checklist li {
@@ -521,6 +528,15 @@ body[data-screen="home"] main {
 }
 
 .checklist .icon { color: var(--green); width: 20px; height: 20px; stroke-width: 3; }
+
+.final-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 0 64px;
+  border-top: 2px solid var(--border);
+  text-align: center;
+}
 
 /* ============================================================
    CAMERA: the canvas (skeleton) sits exactly on top of the video.
@@ -561,7 +577,7 @@ body[data-screen="home"] main {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  color: #5d6a63;
+  color: #8a8a8a;
 }
 
 .camera-placeholder .icon { width: 40px; height: 40px; }
@@ -668,6 +684,7 @@ body[data-screen="home"] main {
 }
 
 .tip {
+  background: var(--surface);
   display: flex;
   align-items: center;
   gap: 16px;
@@ -688,49 +705,10 @@ body[data-screen="home"] main {
 }
 
 .tip-icon .icon { width: 28px; height: 28px; }
-.tip-green { background: rgba(70, 196, 111, 0.15); color: var(--green); }
-.tip-blue  { background: rgba(63, 162, 255, 0.15); color: var(--blue); }
-.tip-red   { background: rgba(255, 91, 97, 0.15);  color: var(--red); }
-
-/* ============================================================
-   SCENE SCREEN
-   ============================================================ */
-.alert-card {
-  margin-top: 16px;
-  padding: 32px 24px;
-  border: 2px solid var(--red-shadow);
-  border-radius: var(--radius);
-  background: rgba(255, 91, 97, 0.08);
-}
-
-.alert-card h2 { font-size: 26px; margin: 4px 0 8px; }
-
-.alert-kicker {
-  font-size: 14px;
-  font-weight: 900;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--red);
-}
-
-.alert-icon {
-  display: inline-grid;
-  place-items: center;
-  width: 64px;
-  height: 64px;
-  margin-bottom: 12px;
-  border-radius: 50%;
-  background: var(--red);
-  color: #ffffff;
-  animation: pulse-red 1.2s ease-out infinite;
-}
-
-.alert-icon .icon { width: 36px; height: 36px; stroke-width: 3.5; }
-
-@keyframes pulse-red {
-  from { box-shadow: 0 0 0 0 rgba(255, 91, 97, 0.6); }
-  to   { box-shadow: 0 0 0 22px rgba(255, 91, 97, 0); }
-}
+.tip-green  { background: rgba(63, 184, 103, 0.15); color: var(--green-shadow); }
+.tip-blue   { background: rgba(61, 139, 253, 0.15); color: var(--blue-shadow); }
+.tip-red    { background: rgba(239, 75, 75, 0.15);  color: var(--red-shadow); }
+.tip-orange { background: rgba(244, 123, 32, 0.15); color: var(--orange-shadow); }
 
 /* ============================================================
    DECISIONS SCREEN (scenario.js fills it)
@@ -750,7 +728,7 @@ body[data-screen="home"] main {
   border-radius: 50%;
   background: var(--blue);
   box-shadow: 0 5px 0 var(--blue-shadow);
-  color: #06203a;
+  color: #ffffff;
   flex-shrink: 0;
 }
 
@@ -787,14 +765,16 @@ body[data-screen="home"] main {
   border: 2px solid var(--border);
   border-bottom-width: 5px;
   border-radius: var(--radius);
-  background: transparent;
+  background: var(--surface);
   color: var(--text);
   font-size: 17px;
   font-weight: 700;
   text-align: left;
 }
 
-.choice:hover { background: var(--surface); }
+.choice:hover:not(:disabled) { border-color: var(--orange); }
+.choice:disabled { cursor: default; }
+.choice:disabled:not(.correct):not(.wrong) { opacity: 0.5; }
 .choice:active { border-bottom-width: 2px; margin-top: 3px; }
 
 .choice-key {
@@ -815,8 +795,36 @@ body[data-screen="home"] main {
 #decision-feedback {
   min-height: 24px;
   margin-top: 16px;
-  color: var(--bad);
+  font-size: 17px;
 }
+
+/* Last 3 seconds of the timer */
+.timer-fill.urgent { background: var(--red); }
+
+/* The row of steps at the top of the decisions screen (scenario.js builds it) */
+.step-map {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 8px 0 22px;
+  padding: 0;
+  list-style: none;
+}
+
+.step-dot {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-weight: 900;
+  transition: background 0.3s;
+}
+
+.step-dot.done    { background: var(--green);  box-shadow: 0 4px 0 var(--green-shadow);  color: #ffffff; }
+.step-dot.current { background: var(--orange); box-shadow: 0 4px 0 var(--orange-shadow); color: #ffffff;
+                    outline: 4px solid rgba(244, 123, 32, 0.25); outline-offset: 3px; }
+.step-dot.locked  { background: var(--locked); box-shadow: 0 4px 0 var(--locked-shadow); color: var(--locked-icon); }
 
 /* ============================================================
    COMPRESSIONS SCREEN: live feedback
@@ -880,6 +888,7 @@ body[data-screen="home"] main {
 }
 
 .stat {
+  background: var(--surface);
   padding: 12px 8px;
   border: 2px solid var(--border);
   border-bottom-width: 5px;
@@ -906,29 +915,6 @@ body[data-screen="home"] main {
 .screen .bad { color: var(--bad); }
 
 /* ============================================================
-   AMBULANCE SCREEN
-   ============================================================ */
-.ambulance {
-  display: block;
-  width: 260px;
-  max-width: 80%;
-  margin: 24px auto 0;
-  animation: drive-in 0.9s ease-out;
-}
-
-.siren { animation: siren 0.6s steps(1) infinite; }
-
-@keyframes siren {
-  0%  { fill: var(--red); }
-  50% { fill: var(--blue); }
-}
-
-@keyframes drive-in {
-  from { transform: translateX(-120%); }
-  to   { transform: none; }
-}
-
-/* ============================================================
    RESULTS SCREEN
    ============================================================ */
 .results-hero {
@@ -937,7 +923,7 @@ body[data-screen="home"] main {
   align-items: center;
 }
 
-.results-hero .screen-title { color: var(--amber); margin-bottom: 16px; }
+.results-hero .screen-title { color: var(--orange); margin-bottom: 16px; }
 
 .grade-badge {
   display: grid;
@@ -947,7 +933,7 @@ body[data-screen="home"] main {
   border-radius: 50%;
   background: var(--amber);
   box-shadow: 0 7px 0 var(--amber-shadow);
-  color: #3a2600;
+  color: #ffffff;
   font-size: 60px;
   font-weight: 900;
   animation: pop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1);
@@ -993,25 +979,34 @@ body[data-screen="home"] main {
   font-size: 24px;
 }
 
-.tile-amber { border-color: var(--amber); } .tile-amber .tile-label { background: var(--amber); } .tile-amber strong { color: var(--amber); }
-.tile-blue  { border-color: var(--blue); }  .tile-blue  .tile-label { background: var(--blue); }  .tile-blue  strong { color: var(--blue); }
-.tile-green { border-color: var(--green); } .tile-green .tile-label { background: var(--green); } .tile-green strong { color: var(--green); }
-.tile-red   { border-color: var(--red); }   .tile-red   .tile-label { background: var(--red); }   .tile-red   strong { color: var(--red); }
+.result-tile { background: var(--surface); }
+.tile-label  { color: #ffffff; }
+.tile-amber { border-color: var(--amber); } .tile-amber .tile-label { background: var(--amber-shadow); } .tile-amber strong { color: var(--amber-shadow); }
+.tile-blue  { border-color: var(--blue); }  .tile-blue  .tile-label { background: var(--blue); }         .tile-blue  strong { color: var(--blue-shadow); }
+.tile-green { border-color: var(--green); } .tile-green .tile-label { background: var(--green-shadow); } .tile-green strong { color: var(--green-shadow); }
+.tile-red   { border-color: var(--red); }   .tile-red   .tile-label { background: var(--red); }          .tile-red   strong { color: var(--red-shadow); }
 
 /* ============================================================
    SMALL SCREENS
    ============================================================ */
 @media (max-width: 900px) {
-  .home-layout { grid-template-columns: 1fr; }
-  .path-mascot { left: 0; width: 110px; }
+  .hero { grid-template-columns: 1fr; text-align: center; padding-top: 16px; }
+  .hero-lead { margin-left: auto; margin-right: auto; }
+  .hero-actions { justify-content: center; }
+  .hero-mascot { order: -1; }
+  .sticker-hero { width: 200px; height: 200px; }
+  .feature-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 600px) {
   .lesson-footer-inner .btn { width: 100%; }
   .result-tiles { grid-template-columns: repeat(2, 1fr); }
-  .panda { width: 72px; height: 72px; }
-  .panda-big { width: 110px; height: 110px; }
-  .path-mascot { display: none; }
+  .sticker { width: 76px; height: 76px; }
+  .sticker-big { width: 120px; height: 120px; }
+  .hero h1 { font-size: 38px; }
+  .why { flex-direction: column; text-align: center; }
+  .feature-grid, .two-columns { grid-template-columns: 1fr; }
+  .step-dot { width: 34px; height: 34px; }
   .big-number { font-size: 52px; }
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .coach { gap: 14px; }
@@ -1031,4 +1026,290 @@ body[data-screen="home"] main {
   margin-top: 0;
   font-size: 22px;
   font-weight: 700;
+}
+
+/* ============================================================
+   GAME MODE: the emergency screens look like a playable game.
+   main.js adds the class "game-mode" to <body> on: scene, decisions,
+   tutorial, compressions, ambulance.
+   - #victim-scene fills the whole screen, behind everything
+   - each screen is a dialogue box fixed at the bottom
+   - the top bar and the step dots float on top of the scene
+   - during compressions, the camera is a small window in the corner
+   ============================================================ */
+#victim-scene {
+  display: none;
+}
+
+body.game-mode #victim-scene {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  /* Fills the space around the drawing: sky on top, sidewalk below
+     (48% = where the sidewalk starts in the drawing) */
+  background: linear-gradient(#fdf0dd 48%, #ead9c1 48%);
+}
+
+.victim {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+body.game-mode #lesson-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 6;
+  max-width: 760px;
+}
+
+body.game-mode #lesson-bar .icon-button {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* The dialogue box at the bottom */
+.game-screen.active {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  padding: 0 16px 20px;
+}
+
+.dialogue {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  max-width: 960px;
+  max-height: 62vh;
+  margin: 0 auto;
+  padding: 18px 22px;
+  overflow-y: auto;
+  border: 3px solid var(--border);
+  border-bottom-width: 7px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 12px 40px rgba(59, 36, 22, 0.18);
+  animation: dialogue-in 0.3s ease-out;
+}
+
+@keyframes dialogue-in {
+  from { transform: translateY(30px); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+
+.dialogue-portrait {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.dialogue-body {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.dialogue-name {
+  margin-bottom: 4px;
+  color: var(--orange);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.dialogue-step {
+  margin-left: 8px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  letter-spacing: 0.3px;
+  text-transform: none;
+}
+
+.dialogue-text {
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.dialogue-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+/* Who is speaking: red for the emergency, blue for the dispatcher */
+.dialogue-alert { border-color: var(--red); }
+.dialogue-alert .dialogue-name { color: var(--red); }
+.dialogue.bubble-blue { border-color: var(--blue); }
+.dialogue.bubble-blue .dialogue-name { color: var(--blue-shadow); }
+
+/* Decisions inside the dialogue box: more compact */
+.dialogue .timer { margin: 12px 0; }
+.dialogue .choices { gap: 8px; }
+.dialogue .choice { padding: 10px 14px; font-size: 16px; }
+.dialogue #decision-feedback { margin-top: 10px; min-height: 22px; text-align: center; }
+
+/* The step dots float at the top of the scene */
+body.game-mode .step-map {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  z-index: 6;
+  margin: 0;
+}
+
+/* Tutorial tips as small chips */
+.tip-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tip-chips li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 15px;
+}
+
+.tip-chips .icon { width: 20px; height: 20px; color: var(--orange-shadow); }
+
+/* Compressions: the dialogue box is a game HUD */
+.hud {
+  align-items: center;
+}
+
+.hud .rate-panel {
+  margin: 0;
+  min-width: 150px;
+}
+
+.hud .big-number { font-size: 52px; }
+
+.hud-middle {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+.hud #live-feedback { margin: 0 0 4px; min-height: 40px; font-size: 20px; }
+.hud #live-depth-reminder { min-height: 26px; margin-bottom: 6px; font-size: 18px; }
+.hud .stat { padding: 8px 6px; font-size: 11px; }
+.hud .stat strong { font-size: 20px; }
+.hud .dialogue-actions { margin-top: 0; }
+
+/* Compressions: the camera is a small window in the top-right corner */
+body.game-mode #camera-box.visible {
+  position: fixed;
+  top: 76px;
+  right: 16px;
+  z-index: 6;
+  width: 300px;
+  margin: 0;
+  box-shadow: 0 8px 24px rgba(59, 36, 22, 0.25);
+}
+
+/* Hidden until the story needs them */
+#victim-phone,
+#victim-aed,
+#victim-hands,
+#scene-ambulance {
+  display: none;
+}
+
+#victim-scene.after-call #victim-phone,
+#victim-scene.after-defibrillator #victim-aed {
+  display: block;
+  animation: pop 0.4s cubic-bezier(0.3, 1.6, 0.5, 1);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Compressions: the hands are on the chest */
+body[data-screen="compressions"] #victim-hands {
+  display: block;
+}
+
+/* The alert sign pulses until the ambulance arrives */
+#victim-alert {
+  animation: alert-blink 1s ease-in-out infinite;
+}
+
+body[data-screen="ambulance"] #victim-alert {
+  display: none;
+}
+
+@keyframes alert-blink {
+  50% { opacity: 0.35; }
+}
+
+/* One compression: the chest (and the hands) go down, then back up */
+.victim-chest {
+  transition: transform 0.12s ease-out;
+}
+
+#victim-scene.press .victim-chest {
+  transform: translateY(5px);
+}
+
+/* Ambulance screen: the ambulance drives in from the right, siren on */
+body[data-screen="ambulance"] #scene-ambulance {
+  display: block;
+}
+
+body[data-screen="ambulance"] .ambulance-body {
+  animation: drive-in 1.2s ease-out;
+}
+
+.siren { animation: siren 0.6s steps(1) infinite; }
+
+@keyframes siren {
+  0%  { fill: var(--red); }
+  50% { fill: var(--blue); }
+}
+
+@keyframes drive-in {
+  from { transform: translateX(600px); }
+  to   { transform: none; }
+}
+
+/* Small screens: smaller portrait and camera, HUD on several lines */
+@media (max-width: 700px) {
+  .game-screen.active { padding: 0 8px 10px; }
+  .dialogue { gap: 12px; padding: 14px; }
+  .dialogue-portrait { width: 64px; height: 64px; }
+  .dialogue-text { font-size: 17px; }
+  .hud { flex-wrap: wrap; }
+  .hud .rate-panel { min-width: 0; flex: 1; }
+  .hud-middle { flex-basis: 100%; order: 3; }
+  body.game-mode #camera-box.visible { width: 150px; top: 120px; right: 8px; }
+
+  /* Phones: zoom on the man (the drawing is wider than the screen and
+     centered, so the buildings on the sides are cut) and put it below
+     the step dots. The man is about 60% of the drawing's width. */
+  .victim {
+    width: 170%;
+    height: auto;
+    margin: 70px 0 0 -35%;
+  }
+
+  /* Where the sidewalk starts: 70px + (drawing height x 48%) = 70px + 46vw */
+  body.game-mode #victim-scene {
+    background: linear-gradient(#fdf0dd calc(70px + 46vw), #ead9c1 calc(70px + 46vw));
+  }
 }

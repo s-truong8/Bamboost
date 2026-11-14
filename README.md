@@ -1,10 +1,10 @@
-# [APP NAME]
+# Pandaid CPR
 
-A CPR training game with [MASCOT NAME], a panda.
+A CPR training game with [MASCOT NAME], a red panda.
 
-The player goes through a 2-minute emergency: a man collapses, a dispatcher voice asks them to make decisions (buttons), then they do chest compressions on a cushion in front of the webcam, then the ambulance arrives and they get a grade.
+The home page presents the project. The player clicks "Start the simulation", checks the camera, then a man collapses. Like a game, the player must validate each step before CPR (is it safe, does he respond, is he breathing, the call, the defibrillator), against a timer. Then they do chest compressions on a cushion in front of the webcam, the ambulance arrives and they get a grade.
 
-Screens, in order: home, setup (camera check), tutorial, scene, decisions, compressions, ambulance, results.
+Screens, in order: home (presentation page), setup (camera check), scene (the collapse), decisions (the steps before CPR), tutorial (how to push), compressions, ambulance, results.
 
 **Safety:** practice on a firm cushion. Never practice on a real person.
 
@@ -24,13 +24,13 @@ Opening `index.html` by double-clicking does not work: ES modules and the camera
 | --- | --- |
 | `index.html` | The page: one `<section>` per screen. |
 | `style.css` | Layout and color theme. |
-| `main.js` | Shared `game` state, `showScreen(name)`, temporary Next buttons. |
+| `main.js` | Shared `game` state, `showScreen(name)`, the start / quit / next buttons. |
 | `tracking.js` | Webcam and pose detection: counts compressions, rate, pauses, arm straightness. The only file that uses MediaPipe. |
 | `camera.js` | Connects `tracking.js` to the setup and compressions screens: camera button, arm check, live feedback. |
-| `scenario.js` | Dispatcher conversation: `loadScript()` and `playStep(id)`. Stubs for now. |
+| `scenario.js` | The steps before CPR, like a game: `loadScript()`, `playStep(id)`, `stopScenario()`. |
 | `score.js` | `computeScore(game)`: turns the game state into a grade. Fake values for now. |
-| `script.json` | The dispatcher lines and choices. Placeholders for now. |
-| `assets/` | Images and sounds. Empty for now. |
+| `script.json` | The steps, questions and choices. Draft text, to check with official sources. |
+| `assets/` | Images and sounds. `assets/mascot-stickers/` has the 20 red panda stickers. |
 | `.gitignore` | Files git should ignore. |
 
 ## Team contracts
@@ -44,9 +44,14 @@ showScreen(name)
 ```
 
 Shows one screen and hides all the others. `name` is the part after `screen-` in the section id:
-`home`, `setup`, `tutorial`, `scene`, `decisions`, `compressions`, `ambulance`, `results`.
+`home`, `setup`, `scene`, `decisions`, `tutorial`, `compressions`, `ambulance`, `results` (the order of the game).
 
-Section ids in `index.html`: `screen-home`, `screen-setup`, `screen-tutorial`, `screen-scene`, `screen-decisions`, `screen-compressions`, `screen-ambulance`, `screen-results`.
+Section ids in `index.html`: `screen-home`, `screen-setup`, `screen-scene`, `screen-decisions`, `screen-tutorial`, `screen-compressions`, `screen-ambulance`, `screen-results`.
+
+What `showScreen` also does:
+- entering `scene` sets `game.startTime` (the emergency starts);
+- entering `decisions` loads `script.json` and plays the first step;
+- the setup "Continue" button stays locked until the camera works.
 
 ### The game object (main.js)
 
@@ -108,14 +113,22 @@ Notes:
 
 The design is in `style.css` (colors at the top, in `:root`). `showScreen` sets `<body data-screen="...">`, and the CSS uses it to show the right top bar and fill the progress bar.
 
-Elements ready for `scenario.js` (decisions screen):
+**Game mode.** On the emergency screens (`scene`, `decisions`, `tutorial`, `compressions`, `ambulance`), `showScreen` adds the class `game-mode` to `<body>`. The drawing `#victim-scene` (a street with the collapsed man) then fills the whole screen, and each screen is a dialogue box at the bottom (`.dialogue`: portrait, name, text, actions). During compressions the camera is a small window in the corner. The drawing changes with classes on `#victim-scene`: `after-<step id>` (added by `scenario.js` when a step is validated: `after-call` shows the phone, `after-defibrillator` the AED) and `press` (added by `camera.js` at each compression).
 
-| Id | What to put there |
+Elements filled by `scenario.js` (decisions screen):
+
+| Id | What goes there |
 | --- | --- |
-| `dispatcher-line` | The dispatcher's line (set `textContent`). |
-| `choices` | One `<button class="choice">` per choice. Optional: `<span class="choice-key">1</span>` before the text. After a click, add the class `correct` or `wrong`. The 2 buttons in the HTML are placeholders: remove them. |
-| `decision-timer` | The countdown bar: set `style.width` from `"100%"` to `"0%"`. |
-| `decision-feedback` | The feedback of a wrong choice. |
+| `step-map` | One numbered dot per step: `done`, `current` or `locked`. |
+| `step-title` | "Step 2 of 6: Does he respond?" |
+| `step-mascot` | The red panda sticker: thinking, right, wrong or too slow. |
+| `step-speaker` | "[MASCOT NAME]" or "Dispatcher" (blue bubble). |
+| `dispatcher-line` | The question. |
+| `choices` | One `<button class="choice">` per choice. Keys 1, 2, 3 also work. |
+| `decision-timer` | The countdown bar (red for the last 3 seconds). |
+| `decision-feedback` | Why a choice is wrong, or "Step validated!". |
+
+Rules of the steps game: the player must find the right answer to validate a step and unlock the next one. A step counts in `game.correctDecisions` only if it's right on the first try, before the timer ends.
 
 The results screen is filled by `main.js` with `computeScore(game)`: `result-grade`, `result-total`, `result-speed`, `result-decisions`, `result-rate`, `result-pauses`, `result-tip`.
 
@@ -126,20 +139,23 @@ To work on one screen's design, open `index.html?screen=results` (or any screen 
 A list of steps. Each step:
 
 ```json
-{ "id": "...", "line": "...", "choices": [ { "text": "...", "correct": true, "next": "..." }, { "text": "...", "correct": false, "feedback": "..." } ], "timeLimit": 8 }
+{ "id": "...", "title": "...", "speaker": "coach", "source": "...", "line": "...", "choices": [ { "text": "...", "correct": true, "next": "...", "feedback": "..." }, { "text": "...", "correct": false, "feedback": "..." } ], "timeLimit": 8 }
 ```
 
 | Field | Meaning |
 | --- | --- |
 | `id` | Unique name of the step. |
-| `line` | What the dispatcher says. |
+| `title` | Short name shown above the question ("Is it safe?"). |
+| `speaker` | `"coach"` (the red panda) or `"dispatcher"` (blue bubble). |
+| `source` | Where the content comes from. Not shown in the game. |
+| `line` | The question. |
 | `choices` | The buttons shown to the player. |
 | `choices[].text` | The text on the button. |
 | `choices[].correct` | `true` for the right answer, `false` otherwise. |
 | `choices[].next` | Correct choices only: the `id` of the step to play next. |
-| `choices[].feedback` | Wrong choices only: what to tell the player. |
+| `choices[].feedback` | Why the choice is wrong. Optional on the right choice: shown after "Step validated!". |
 | `timeLimit` | Seconds the player has to answer. |
 
-In the placeholder file, the last step uses `"next": "end"` to mean "the conversation is over". This is only a suggestion: the team still has to agree on it.
+`"next": "end"` on the last step means "all steps are validated": the game goes to the tutorial, then the compressions. The first step of the file is the first step of the game.
 
-All medical content must come from official sources. The current text is placeholder only.
+All medical content must come from official sources. The current steps are a DRAFT: check every line, and the emergency number of your country (the draft uses 112), against official guidelines (for example ERC or AHA Basic Life Support).

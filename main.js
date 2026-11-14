@@ -4,9 +4,7 @@
 
 import { enterSetupScreen, leaveSetupScreen, enterCompressionsScreen, leaveCompressionsScreen, isCameraReady, turnOffCamera } from "./camera.js";
 
-// These imports are not used yet. They are here so that a mistake in one
-// of these files shows up in the console as soon as the page opens.
-import { loadScript, playStep } from "./scenario.js";
+import { loadScript, playStep, stopScenario } from "./scenario.js";
 import { computeScore } from "./score.js";
 
 // ============================================================
@@ -22,12 +20,22 @@ export const game = {
   compressionStats: null,      // the object returned by stopTracking()
 };
 
+// Put the game state back to zero before a new game
+function resetGame() {
+  document.getElementById("victim-scene").className = ""; // no phone, no defibrillator
+  game.startTime = null;
+  game.firstCompressionTime = null;
+  game.correctDecisions = 0;
+  game.totalDecisions = 0;
+  game.compressionStats = null;
+}
+
 // ============================================================
 // SCREENS
 // ============================================================
 // Show one screen and hide all the others.
-// name is the part after "screen-": "home", "setup", "tutorial", "scene",
-// "decisions", "compressions", "ambulance" or "results".
+// name is the part after "screen-". Order of the game:
+// "home", "setup", "scene", "decisions", "tutorial", "compressions", "ambulance", "results".
 let currentScreenName = "home";
 
 export function showScreen(name) {
@@ -44,6 +52,10 @@ export function showScreen(name) {
   if (currentScreenName === "compressions") {
     leaveCompressionsScreen(game);
   }
+  // Stop the step timer if the player quits during the steps
+  if (currentScreenName === "decisions") {
+    stopScenario();
+  }
 
   const allScreens = document.querySelectorAll(".screen");
   for (const screen of allScreens) {
@@ -57,9 +69,25 @@ export function showScreen(name) {
   // style.css reads this to pick the top bar and fill the progress bar
   document.body.dataset.screen = name;
 
+  // The emergency screens are shown like a game: the scene fills the
+  // screen and the screen itself is a dialogue box at the bottom
+  const gameScreens = ["scene", "decisions", "tutorial", "compressions", "ambulance"];
+  if (gameScreens.includes(name)) {
+    document.body.classList.add("game-mode");
+  } else {
+    document.body.classList.remove("game-mode");
+  }
+
   // Tell camera.js when we enter one of its screens
   if (name === "setup") {
     enterSetupScreen();
+  }
+  // The emergency starts: the "fast start" score counts from here
+  if (name === "scene") {
+    game.startTime = performance.now() / 1000;
+  }
+  if (name === "decisions") {
+    startSteps();
   }
   if (name === "compressions") {
     enterCompressionsScreen(game);
@@ -68,6 +96,18 @@ export function showScreen(name) {
     // The camera stays on from the setup screen until the end of the game
     turnOffCamera();
     showResults();
+  }
+}
+
+// ============================================================
+// THE STEPS BEFORE CPR (scenario.js does the work)
+// ============================================================
+async function startSteps() {
+  try {
+    const steps = await loadScript();
+    playStep(steps[0].id);
+  } catch (error) {
+    console.error("Could not load script.json", error);
   }
 }
 
@@ -87,20 +127,35 @@ function showResults() {
 }
 
 // ============================================================
-// TEMPORARY: "Next" buttons to click through all the screens
+// BUTTONS
 // ============================================================
-// Each button has data-next="..." in index.html: the screen it goes to.
-// Remove this once the real game flow exists.
+// "Start the simulation" (there are two on the home page)
+const startButtons = document.querySelectorAll(".start-button");
+for (const button of startButtons) {
+  button.addEventListener("click", function () {
+    resetGame();
+    // The setup screen is the check before each game:
+    // if the camera already works, it is not needed.
+    if (isCameraReady()) {
+      showScreen("scene");
+    } else {
+      showScreen("setup");
+    }
+  });
+}
+
+// The X in the top bar: quit the game
+document.getElementById("quit-button").addEventListener("click", function () {
+  turnOffCamera();
+  showScreen("home");
+});
+
+// The simple "go to the next screen" buttons.
+// Each one has data-next="..." in index.html: the screen it goes to.
 const nextButtons = document.querySelectorAll(".next-button");
 for (const button of nextButtons) {
   button.addEventListener("click", function () {
-    let nextScreen = button.dataset.next;
-    // The setup screen is the check before each game:
-    // if the camera already works, it is not needed.
-    if (nextScreen === "setup" && isCameraReady()) {
-      nextScreen = "tutorial";
-    }
-    showScreen(nextScreen);
+    showScreen(button.dataset.next);
   });
 }
 

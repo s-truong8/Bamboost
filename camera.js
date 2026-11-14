@@ -20,6 +20,7 @@ const canvas = document.getElementById("camera-canvas");
 
 // Setup screen
 const cameraButton = document.getElementById("camera-button");
+const setupContinue = document.getElementById("setup-continue"); // locked until the camera works
 const setupStatus = document.getElementById("setup-status");
 const setupArm = document.getElementById("setup-arm");
 const setupCount = document.getElementById("setup-count");
@@ -82,6 +83,7 @@ async function turnOnCamera() {
   cameraLoading = false;
   cameraReady = true;
   cameraButton.textContent = "Camera is on";
+  setupContinue.disabled = false;
   setupStatus.textContent = "Camera ready. Kneel beside your cushion, with your side to the camera, and try a few compressions.";
 
   // The player may have moved to another screen while the model was loading
@@ -263,6 +265,7 @@ function startLiveFeedback(game) {
 
   startTracking({
     onCompression: function (time) {
+      pressVictimChest();
       compressionCount = compressionCount + 1;
       liveCount.textContent = compressionCount;
       // Remember when the very first compression happened (used for the score)
@@ -317,6 +320,17 @@ function startLiveFeedback(game) {
   isCounting = true;
 }
 
+// The chest of the man in the drawing goes down for one compression,
+// then back up after 150 milliseconds (see .press in style.css)
+const victimScene = document.getElementById("victim-scene");
+
+function pressVictimChest() {
+  victimScene.classList.add("press");
+  setTimeout(function () {
+    victimScene.classList.remove("press");
+  }, 150);
+}
+
 // colorClass is "good", "warn", "bad" or "" (see style.css)
 function showFeedback(text, colorClass) {
   liveFeedback.textContent = text;
@@ -337,6 +351,7 @@ export function turnOffCamera() {
   isCounting = false;
   cameraButton.disabled = false;
   cameraButton.textContent = "Turn on the camera";
+  setupContinue.disabled = true;
   setupStatus.textContent = "Put the camera to your side, so it sees you and the cushion. Then turn it on.";
 }
 
