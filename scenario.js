@@ -15,7 +15,7 @@ const STICKERS = {
   tooSlow: "assets/mascot-stickers/06-shocked.png",
 };
 
-const NEXT_STEP_DELAY = 1600;  // milliseconds to enjoy the "validated" message
+const NEXT_STEP_DELAY = 900;   // milliseconds to enjoy the "validated" message
 const WRONG_STEP_DELAY = 3500; // after a wrong answer: more time to read the feedback and the right answer
 
 // The phone call (step "call"): the phone rings once, then the dispatcher answers.

@@ -1623,8 +1623,8 @@ body[data-screen="tutorial"] .lens-push {
 }
 
 @keyframes lens-caption {
-  0%, 19%  { opacity: 1; }
-  20%, 100% { opacity: 0; }
+  0%, 20%     { opacity: 1; }
+  20.1%, 100% { opacity: 0; }
 }
 
 /* step 1: the landmarks are labelled, then fade when the hands come */
@@ -1961,7 +1961,7 @@ body[data-screen="results"] main { max-width: 980px; }
   .eval-sub th { padding-left: 16px; }
   .eval-grid tfoot th { font-size: 16px; }
 }
-=======
+
 /* Compressions: the panda coach says the warnings in a speech bubble */
 .live-coach {
   display: flex;
@@ -2131,4 +2131,101 @@ body[data-screen="home"] #mute-button { top: 48px; }
 
 @media (prefers-reduced-motion: reduce) {
   #victim-scene.after-call.phone-ringing #victim-phone { animation: none; }
+}
+
+
+/* ============================================================
+   PLAYTEST FIXES
+   ============================================================ */
+
+/* Debug panel of the setup screen: only with index.html?debug */
+#debug-panel { display: none; }
+body.debug #debug-panel { display: block; }
+
+/* Tutorial: the zoom circle shrinks on short screens so its caption
+   never covers the dialogue box (about 460px of the height is taken by
+   the top bar and the tutorial box) */
+body[data-screen="tutorial"] #hands-lens {
+  --lens: clamp(170px, calc(100vh - 470px), 400px);
+}
+
+/* Tutorial: the "Hands here" label sits behind the dialogue box there,
+   and the zoom circle already shows it: keep only the ring */
+body[data-screen="tutorial"] #victim-target text { display: none; }
+
+/* Decisions and other game screens: the big panda stands a little more to the
+   right, so he no longer hides the man's legs */
+#scene-panda { right: max(24px, calc(50% - 520px)); }
+
+/* Compressions: the big panda would cover the camera window, so the
+   panda inside the monitor box says the warnings instead */
+body[data-screen="compressions"] #scene-panda { display: none; }
+body.game-mode[data-screen="compressions"] .live-panda { display: block; }
+body.game-mode[data-screen="compressions"] .live-bubble::before { display: block; }
+
+/* Results: the step lines of "The calls" are folded (button in the grid) */
+.eval-grid:not(.show-steps) .eval-sub { display: none; }
+.eval-toggle {
+  display: block;
+  margin-top: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Results on a laptop: two columns, so the whole page fits without scrolling.
+   Left: the stamp and the tip. Right: the grid. */
+@media (min-width: 1000px) {
+  body[data-screen="results"] #lesson-bar,
+  body[data-screen="results"] .lesson-footer-inner { max-width: 1160px; }
+  body[data-screen="results"] main { max-width: 1160px; }
+
+  #screen-results.active {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
+    grid-template-areas:
+      "hero  grid"
+      "tip   grid"
+      "tip   legend";
+    column-gap: 32px;
+    align-items: start;
+    text-align: left;
+  }
+  #screen-results .results-hero { grid-area: hero; }
+  #screen-results .eval-grid    { grid-area: grid; margin: 0; }
+  #screen-results .eval-legend  { grid-area: legend; margin-top: 8px; }
+  #screen-results > .coach      { grid-area: tip; align-self: start; flex-direction: column; align-items: flex-start; }
+  #screen-results > .coach .bubble::before { left: 30px; top: -9px; margin: 0; transform: rotate(135deg); }
+}
+
+/* Short laptop screens: drop the small descriptions under each criterion */
+@media (min-width: 1000px) and (max-height: 820px) {
+  #screen-results .eval-measured { display: none; }
+  #screen-results .eval-grid th,
+  #screen-results .eval-grid td { padding-top: 7px; padding-bottom: 7px; }
+}
+
+/* Phones */
+@media (max-width: 560px) {
+  /* Results: the Verdict column is cut off on a phone, the points are enough */
+  .eval-grid th:nth-child(5),
+  .eval-grid td:nth-child(5) { display: none; }
+
+  /* Compressions: a smaller camera window, so it hides less of the man */
+  body.game-mode #camera-box.visible { width: 150px; }
+}
+
+/* Setup on a phone: mascot beside the bubble and a shorter camera, so it fits */
+@media (max-width: 860px) {
+  body[data-screen="setup"] #camera-box { width: min(100%, calc(30vh * 4 / 3)); }
+  body[data-screen="setup"] #screen-setup .coach { flex-direction: row; align-items: center; }
+  body[data-screen="setup"] #screen-setup .coach .sticker { width: 56px; height: 56px; }
+  body[data-screen="setup"] #screen-setup .bubble::before { left: -11px; top: 50%; margin-top: -8px; transform: rotate(45deg); }
+  body[data-screen="setup"] #screen-setup .big-number { font-size: 30px; }
 }

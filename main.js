@@ -105,6 +105,7 @@ export function showScreen(name) {
     startMetronome(); // starts 0.3 s later, right after the "go"
   }
   if (name === "ambulance") {
+    writeAmbulanceText();
     sfx("siren");
     setTimeout(function () {
       if (currentScreenName === "ambulance") {
@@ -173,7 +174,43 @@ function showResults() {
   document.getElementById("result-total").textContent = score.total;
   document.getElementById("result-grade-label").textContent = score.gradeLabel;
   document.getElementById("result-tip").textContent = score.tip;
+  writeResultTitle(score);
   drawGrid(score);
+}
+
+// How many compressions the camera counted (0 if it never saw any)
+function compressionCount() {
+  const stats = game.compressionStats;
+  return stats ? stats.count : 0;
+}
+
+// The paramedics' line depends on what the player did
+function writeAmbulanceText() {
+  const text = document.getElementById("ambulance-text");
+  if (compressionCount() === 0) {
+    text.textContent = "The paramedics take over. No compressions were counted: without them, his chances drop fast. Let's see what happened.";
+  } else {
+    text.textContent = "The paramedics take over. You kept him going until they arrived. Well done!";
+  }
+}
+
+// The title of the results matches the outcome, so an F never says "Emergency handled!"
+function writeResultTitle(score) {
+  const kicker = document.getElementById("result-kicker");
+  const title = document.getElementById("result-title");
+  if (compressionCount() === 0) {
+    kicker.textContent = "No compressions counted";
+    title.textContent = "He needed compressions";
+  } else if (score.grade === "A" || score.grade === "B") {
+    kicker.textContent = "Mission complete";
+    title.textContent = "Emergency handled!";
+  } else if (score.grade === "C") {
+    kicker.textContent = "Mission complete";
+    title.textContent = "Good effort!";
+  } else {
+    kicker.textContent = "Keep practising";
+    title.textContent = "Not quite there yet";
+  }
 }
 
 // The evaluation grid: one line per criterion, and under "The calls"
@@ -182,9 +219,25 @@ function drawGrid(score) {
   const body = document.getElementById("eval-body");
   body.innerHTML = "";
 
+  // The one line per step is folded by default, so the grid fits on one screen
+  const table = body.closest("table");
+  table.classList.remove("show-steps");
+
   for (const row of score.rows) {
-    body.appendChild(makeGridRow(row, false));
+    const tr = makeGridRow(row, false);
+    body.appendChild(tr);
     if (row.id === "calls") {
+      const toggle = document.createElement("button");
+      toggle.type = "button";
+      toggle.className = "eval-toggle";
+      toggle.textContent = "Show each step";
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.addEventListener("click", function () {
+        const open = table.classList.toggle("show-steps");
+        toggle.textContent = open ? "Hide the steps" : "Show each step";
+        toggle.setAttribute("aria-expanded", String(open));
+      });
+      tr.querySelector("th").appendChild(toggle);
       for (const step of score.steps) {
         body.appendChild(makeGridRow({
           label: step.label,
@@ -283,6 +336,11 @@ for (const button of nextButtons) {
   button.addEventListener("click", function () {
     showScreen(button.dataset.next);
   });
+}
+
+// For the team: open index.html?debug to show the tracker's debug panel on the setup screen
+if (new URLSearchParams(window.location.search).has("debug")) {
+  document.body.classList.add("debug");
 }
 
 // For the team: open index.html?screen=results (or any screen name)

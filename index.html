@@ -196,7 +196,7 @@
           <circle cx="0" cy="-46" r="4" fill="#24467f"/>
           <circle cx="0" cy="46" r="4" fill="#24467f"/>
           <g class="lens-labels" font-family="sans-serif" font-size="9" font-weight="800" fill="#ffffff">
-            <text x="-70" y="-7">breastbone</text>
+            <text x="-86" y="-8">breastbone</text>
             <text x="6" y="-60">nipple line</text>
           </g>
           <!-- the target: center of the chest, on the breastbone, between the nipples -->
@@ -403,7 +403,8 @@
         <p id="setup-depth"></p>
       </div>
 
-      <!-- For the team only: to see and tune what the tracker sees -->
+      <!-- For the team only: to see and tune what the tracker sees.
+           Hidden for players: open index.html?debug to show it (main.js adds body.debug) -->
       <details id="debug-panel">
         <summary>Debug: arm height (last 5 s)</summary>
         <canvas id="debug-canvas" width="600" height="140"></canvas>
@@ -471,7 +472,7 @@
         <img class="dialogue-portrait" src="assets/mascot-stickers/01-happy.png" alt="">
         <div class="dialogue-body">
           <p class="dialogue-name">Dispatcher</p>
-          <p class="dialogue-text">Every step is validated. Now start chest compressions. Remember:</p>
+          <p class="dialogue-text">Help is on the way. Start chest compressions now, and don't stop until the paramedics take over. Remember:</p>
           <ul class="tip-chips">
             <li><svg class="icon"><use href="#i-hands"/></svg>Center of the chest, push hard: at least 5 cm</li>
             <li><svg class="icon"><use href="#i-arm"/></svg>Straight arms, use your whole body</li>
@@ -526,7 +527,7 @@
         <img class="dialogue-portrait" src="assets/mascot-stickers/18-joyful.png" alt="">
         <div class="dialogue-body">
           <p class="dialogue-name">Help has arrived!</p>
-          <p class="dialogue-text">The paramedics take over. You kept him going until they arrived. Well done!</p>
+          <p class="dialogue-text" id="ambulance-text">The paramedics take over. You kept him going until they arrived. Well done!</p>
           <div class="dialogue-actions">
             <button class="next-button btn" data-next="results">See my results</button>
           </div>
@@ -539,8 +540,8 @@
     <section id="screen-results" class="screen lesson">
       <div class="results-hero">
         <img class="sticker sticker-big" src="assets/mascot-stickers/13-proud.png" alt="">
-        <p class="mission-kicker">Mission complete</p>
-        <h2 class="screen-title">Emergency handled!</h2>
+        <p class="mission-kicker" id="result-kicker">Mission complete</p>
+        <h2 class="screen-title" id="result-title">Emergency handled!</h2>
         <div class="grade-badge"><span id="result-grade">–</span></div>
         <p class="results-total"><strong id="result-total">0</strong> points · <span id="result-grade-label"></span></p>
       </div>

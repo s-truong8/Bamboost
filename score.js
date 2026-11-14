@@ -108,7 +108,7 @@ export function computeScore(game) {
     total: total,
     grade: grade.letter,
     gradeLabel: grade.label,
-    tip: pickTip(rows, total),
+    tip: pickTip(rows, total, stats),
 
     // Old fields, kept so nothing else breaks
     speed: speed.points,
@@ -240,7 +240,10 @@ function gradeFor(total) {
 }
 
 // The tip is about the criterion where you lost the most points
-function pickTip(rows, total) {
+function pickTip(rows, total, stats) {
+  if (stats === null || stats.count === 0) {
+    return "The camera didn't see any compressions. Put it at your side so it sees your whole arm, and check it in the camera check before you start.";
+  }
   let worst = rows[0];
   let mostLost = -1;
   for (const row of rows) {
