@@ -70,8 +70,8 @@ Times are in seconds, read with `performance.now() / 1000`. This is the same clo
 
 ```js
 initTracking(videoElement, canvasElement)  // loads the model and camera, returns a Promise
-startTracking(callbacks)                   // callbacks: onCompression(time), onRate(rate), onPause(), onArmStatus(isStraight), onArmDetected(isDetected)
-stopTracking()                             // returns { count, averageRate, percentInRange, pauses, percentArmsStraight }
+startTracking(callbacks)                   // callbacks: onCompression(time), onRate(rate), onPause(), onArmStatus(isStraight), onArmDetected(isDetected), onDepth(isDeepEnough)
+stopTracking()                             // returns { count, averageRate, percentInRange, pauses, percentArmsStraight, percentDeepEnough }
 ```
 
 Callbacks (all optional):
@@ -83,6 +83,7 @@ Callbacks (all optional):
 | `onPause()` | Once each time the player stops for more than 2 seconds. |
 | `onArmStatus(isStraight)` | When the arm changes between straight (`true`) and bent (`false`). |
 | `onArmDetected(isDetected)` | When we start (`true`) or stop (`false`) seeing the arm. |
+| `onDepth(isDeepEnough)` | When the last 3 pushes change between deep enough (`true`) and too shallow (`false`). |
 
 What `stopTracking()` returns:
 
@@ -93,6 +94,7 @@ What `stopTracking()` returns:
 | `percentInRange` | Percent of compressions done at 100 to 120 per minute. |
 | `pauses` | Number of pauses. |
 | `percentArmsStraight` | Percent of the time the arm was straight. |
+| `percentDeepEnough` | Percent of pushes that were deep enough (an estimate: a webcam can't measure centimetres exactly). |
 
 Notes:
 
@@ -100,7 +102,7 @@ Notes:
 - The canvas must sit exactly on top of the video in CSS (same size) for the skeleton to line up.
 - You can call `startTracking` again after `stopTracking` to play again.
 - `stopCamera()` turns the webcam off at the end of the game (the results screen). `initTracking` turns it on again; the model is not reloaded.
-- Debug only (used by the debug panel on the setup screen): `setSensitivity(value)` changes the minimum dip (default 0.07 forearm length), and `getDebugData()` returns the last 5 seconds of the signal and the camera fps. The game itself should not need them.
+- Debug only (used by the debug panel on the setup screen): `setSensitivity(value)` changes the minimum dip (default 0.07 forearm length), `setGoodDepth(value)` changes the depth that counts as deep enough (default 0.15 forearm length, about 4 cm), and `getDebugData()` returns the last 5 seconds of the signal and the camera fps. The game itself should not need them.
 
 ### script.json format
 

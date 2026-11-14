@@ -5,7 +5,7 @@
 // main.js calls the 4 functions at the bottom when the player enters or
 // leaves one of these screens.
 
-import { initTracking, startTracking, stopTracking, stopCamera, setSensitivity, getDebugData } from "./tracking.js";
+import { initTracking, startTracking, stopTracking, stopCamera, setSensitivity, setGoodDepth, getDebugData } from "./tracking.js";
 
 // Same target as in tracking.js: 100 to 120 compressions per minute
 const TARGET_MIN = 100;
@@ -24,6 +24,7 @@ const setupStatus = document.getElementById("setup-status");
 const setupArm = document.getElementById("setup-arm");
 const setupCount = document.getElementById("setup-count");
 const setupRate = document.getElementById("setup-rate");
+const setupDepth = document.getElementById("setup-depth");
 
 // Debug panel (setup screen)
 const debugPanel = document.getElementById("debug-panel");
@@ -32,6 +33,8 @@ const debugContext = debugCanvas.getContext("2d");
 const debugInfo = document.getElementById("debug-info");
 const debugSlider = document.getElementById("debug-slider");
 const debugSliderValue = document.getElementById("debug-slider-value");
+const depthSlider = document.getElementById("depth-slider");
+const depthSliderValue = document.getElementById("depth-slider-value");
 
 // Compressions screen
 const liveRate = document.getElementById("live-rate");
@@ -39,6 +42,8 @@ const liveFeedback = document.getElementById("live-feedback");
 const liveCount = document.getElementById("live-count");
 const livePauses = document.getElementById("live-pauses");
 const liveArms = document.getElementById("live-arms");
+const liveDepth = document.getElementById("live-depth");
+const liveDepthReminder = document.getElementById("live-depth-reminder");
 
 // ============================================================
 // STATE OF THIS FILE
@@ -97,6 +102,8 @@ function startSetupCheck() {
   setupRate.textContent = "–";
   setupArm.textContent = "Looking for your arm…";
   setupArm.className = "";
+  setupDepth.textContent = "";
+  setupDepth.className = "";
 
   startTracking({
     onArmDetected: function (isDetected) {
@@ -120,6 +127,16 @@ function startSetupCheck() {
     onPause: function () {
       setupRate.textContent = "–";
     },
+    // The depth appears after a few pushes
+    onDepth: function (isDeepEnough) {
+      if (isDeepEnough) {
+        setupDepth.textContent = "Depth: good";
+        setupDepth.className = "good";
+      } else {
+        setupDepth.textContent = "Depth: push deeper";
+        setupDepth.className = "bad";
+      }
+    },
   });
   isCounting = true;
 }
@@ -129,12 +146,21 @@ function startSetupCheck() {
 // ============================================================
 // Blue line = arm height. Green dot = a counted compression.
 // Grey bar on the left = the minimum dip needed to count one.
-// If the dips are smaller than the grey bar, lower the slider.
-// If dots appear while you are still, raise it.
+//   If the dips are smaller than the grey bar, lower "Min. movement".
+//   If dots appear while you are still, raise it.
+// Orange bar = the dip needed to be "deep enough".
+//   Push at a depth you know is right (about 5 cm into the cushion)
+//   and move "Good depth" until your dips just reach the orange bar.
 debugSlider.addEventListener("input", function () {
   const value = parseFloat(debugSlider.value);
   setSensitivity(value);
   debugSliderValue.textContent = value.toFixed(2);
+});
+
+depthSlider.addEventListener("input", function () {
+  const value = parseFloat(depthSlider.value);
+  setGoodDepth(value);
+  depthSliderValue.textContent = value.toFixed(2);
 });
 
 function drawDebugLoop() {
@@ -151,7 +177,11 @@ function drawDebugGraph(data) {
   const width = debugCanvas.width;
   const height = debugCanvas.height;
   debugContext.clearRect(0, 0, width, height);
-  debugInfo.textContent = "Camera: " + data.fps + " images per second (below 15, counting gets harder)";
+  let info = "Camera: " + data.fps + " images per second (below 15, counting gets harder).";
+  if (data.lastDepth !== null) {
+    info = info + " Last push: " + data.lastDepth.toFixed(2) + " forearm (good: " + data.minGoodDepth.toFixed(2) + " or more).";
+  }
+  debugInfo.textContent = info;
 
   const history = data.history;
   if (history.length < 2) {
@@ -159,14 +189,15 @@ function drawDebugGraph(data) {
   }
 
   // Vertical scale: from the lowest to the highest value of the last 5 s.
-  // The range is at least 2 thresholds, so camera jitter doesn't fill the whole graph.
+  // The range is at least 2 thresholds (so camera jitter doesn't fill the whole graph)
+  // and a bit more than the good depth (so the orange bar fits).
   let lowest = Infinity;
   let highest = -Infinity;
   for (const point of history) {
     lowest = Math.min(lowest, point.height);
     highest = Math.max(highest, point.height);
   }
-  const range = Math.max(highest - lowest, 2 * data.threshold, 0.001);
+  const range = Math.max(highest - lowest, 2 * data.threshold, 1.2 * data.goodDepth, 0.001);
   const lastTime = history[history.length - 1].time;
 
   function toX(time) {
@@ -180,6 +211,11 @@ function drawDebugGraph(data) {
   const barHeight = (data.threshold / range) * (height - 20);
   debugContext.fillStyle = "#c8c8c8";
   debugContext.fillRect(4, height - 10 - barHeight, 8, barHeight);
+
+  // Orange bar: the size of a deep enough dip
+  const goodBarHeight = (data.goodDepth / range) * (height - 20);
+  debugContext.fillStyle = "#e08a1e";
+  debugContext.fillRect(16, height - 10 - goodBarHeight, 8, goodBarHeight);
 
   // Blue line: the arm height
   debugContext.strokeStyle = "#2f6fdb";
@@ -220,6 +256,9 @@ function startLiveFeedback(game) {
   liveRate.textContent = "–";
   liveArms.textContent = "–";
   liveArms.className = "";
+  liveDepth.textContent = "–";
+  liveDepth.className = "";
+  liveDepthReminder.textContent = "";
   showFeedback("Push hard and fast in the center of the cushion.", "");
 
   startTracking({
@@ -259,6 +298,19 @@ function startLiveFeedback(game) {
     onArmDetected: function (isDetected) {
       if (!isDetected) {
         showFeedback("I can't see your arm. Turn your side to the camera.", "warn");
+      }
+    },
+    // Separate line from the rhythm feedback, so "Push deeper!" stays
+    // visible even when the rhythm is good
+    onDepth: function (isDeepEnough) {
+      if (isDeepEnough) {
+        liveDepth.textContent = "Good";
+        liveDepth.className = "good";
+        liveDepthReminder.textContent = "";
+      } else {
+        liveDepth.textContent = "Too shallow";
+        liveDepth.className = "warn";
+        liveDepthReminder.textContent = "Push deeper!";
       }
     },
   });

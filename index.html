@@ -37,6 +37,7 @@
       <p id="setup-arm"></p>
       <p>Test compressions counted: <strong id="setup-count">0</strong></p>
       <p class="big-number"><span id="setup-rate">–</span> <small>/min</small></p>
+      <p id="setup-depth"></p>
 
       <!-- For the team only: to see and tune what the tracker sees -->
       <details id="debug-panel">
@@ -47,6 +48,11 @@
           Min. movement
           <input type="range" id="debug-slider" min="0.02" max="0.3" step="0.01" value="0.07">
           <span id="debug-slider-value">0.07</span>
+        </label>
+        <label class="slider-row">
+          Good depth
+          <input type="range" id="depth-slider" min="0.05" max="0.5" step="0.01" value="0.15">
+          <span id="depth-slider-value">0.15</span>
         </label>
       </details>
 
@@ -75,10 +81,12 @@
       <h2>Compressions</h2>
       <p class="big-number"><span id="live-rate">–</span> <small>/min</small></p>
       <p id="live-feedback"></p>
+      <p id="live-depth-reminder" class="bad"></p>
       <div class="stats">
         <div class="stat">Compressions<strong id="live-count">0</strong></div>
         <div class="stat">Pauses<strong id="live-pauses">0</strong></div>
         <div class="stat">Arms<strong id="live-arms">–</strong></div>
+        <div class="stat">Depth<strong id="live-depth">–</strong></div>
       </div>
       <button class="next-button" data-next="ambulance">Next</button>
     </section>

@@ -190,3 +190,11 @@ button:disabled {
 .slider-row input {
   flex: 1;
 }
+
+/* "Push deeper!" reminder on the compressions screen */
+#live-depth-reminder {
+  min-height: 28px;
+  margin-top: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
