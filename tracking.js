@@ -8,6 +8,7 @@
 //
 // Two extra functions for the debug panel (to tune the tracking):
 //   setSensitivity(value)   changes minMovement while the game runs
+//   setGoodDepth(value)     changes minGoodDepth while the game runs
 //   getDebugData()          the last 5 seconds of the signal, for a graph
 
 import { PoseLandmarker, FilesetResolver, DrawingUtils }
@@ -20,10 +21,16 @@ const TARGET_MIN = 100;          // guideline: 100 to 120 compressions per minut
 const TARGET_MAX = 120;
 const MIN_INTERVAL = 0.3;        // seconds: two compressions can't be closer than this
 const PAUSE_AFTER = 2.0;         // seconds without a compression = a pause
-const SMOOTHING = 0.5;           // 0 = very smooth (slow), 1 = no smoothing (jittery)
+const SMOOTHING = 0.5;           // 0 = very smooth (slow), 1 = no smoothing (jittery). Value for 30 images per second.
 const STRAIGHT_ARM_ANGLE = 160;  // degrees: above this, the arm counts as straight
 let minMovement = 0.07;          // how deep a dip must be, as a fraction of forearm length
                                  // (lower = counts smaller pushes, but also camera jitter)
+let minGoodDepth = 0.15;         // how deep a push must be to count as "deep enough", in forearm lengths.
+                                 // Guideline for adults: 5 to 6 cm. An adult forearm is about 25 cm,
+                                 // so 5 cm is about 0.2 forearm. We use less (0.15, about 4 cm) so that
+                                 // normal pushes on a cushion are not flagged as too shallow.
+                                 // A webcam can only ESTIMATE this: check it with the debug panel.
+const DEPTH_WINDOW = 3;          // judge the depth on the last 3 pushes, so one bad push doesn't flash a warning
 const MIN_VISIBILITY = 0.6;      // only trust arm points the model is confident about (0 to 1)
 const MAX_JUMP = 0.8;            // a wrist can't move more than 0.8 forearm in one frame
 const MAX_GLITCH_FRAMES = 10;    // after this many "jump" frames, the person really moved
@@ -49,23 +56,27 @@ let canvasContext = null;
 let poseLandmarker = null;
 let drawingUtils = null;
 let lastVideoTime = -1;
+let cameraStream = null;        // the webcam, so we can turn it off at the end
+let animationFrameId = null;    // the next loop() call, so we can cancel it
 
 // Are we counting compressions right now? (between startTracking and stopTracking)
 let isTracking = false;
 let callbacks = {};
 
-// Signal: the wrist height wave
-let smoothedHeight = null;      // smoothed wrist height
+// Signal: the arm height wave
+let smoothedHeight = null;      // smoothed arm height
 let forearmLength = null;       // smoothed forearm length (our ruler)
 let glitchFrames = 0;           // how many frames in a row looked like a glitch
 let direction = "down";         // are we pushing down or coming back up?
 let lowestPoint = Infinity;     // lowest height reached during this push
 let highestPoint = -Infinity;   // highest height reached while coming back up
 let lowestTime = 0;             // when the lowest point happened
+let lastFrameTime = null;       // when the previous image was analysed (for the smoothing)
 
 // Results of the session
 let compressionTimes = [];      // time of each compression (seconds)
-let amplitudes = [];            // depth of each compression (in forearm lengths)
+let pushDepths = [];            // depth of each compression (in forearm lengths)
+let deepPushCount = 0;          // compressions that were deep enough
 let inRangeCount = 0;           // compressions done at a good rate
 let pauseCount = 0;
 let inPause = false;
@@ -79,10 +90,7 @@ let frameTimes = [];            // times of the frames in the last second (to co
 // Last values sent to the callbacks (so we only call them when something changes)
 let lastArmDetected = null;
 let lastArmStraight = null;
-
-// Relative depth: "calibrating", "steady" or "weaker".
-// Not part of the interface yet. If the team wants it, add an onDepth callback.
-let depthStatus = "calibrating";
+let lastDeepEnough = null;
 
 // ============================================================
 // 3. THE INTERFACE (the 3 functions other files can use)
@@ -90,24 +98,28 @@ let depthStatus = "calibrating";
 
 // Loads the pose model and turns on the camera.
 // Returns a Promise: it finishes when the camera image is ready.
-// After this, the skeleton is drawn on the canvas all the time.
+// After this, the skeleton is drawn on the canvas until stopCamera().
+// It can be called again after stopCamera(): the model is only loaded once.
 export async function initTracking(videoElement, canvasElement) {
   video = videoElement;
   canvas = canvasElement;
   canvasContext = canvas.getContext("2d");
 
-  // Load the pose model
-  const vision = await FilesetResolver.forVisionTasks(WASM_URL);
-  poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
-    baseOptions: { modelAssetPath: MODEL_URL, delegate: "GPU" },
-    runningMode: "VIDEO",
-    numPoses: 1,
-  });
+  // Load the pose model (only the first time: it is slow)
+  if (poseLandmarker === null) {
+    const vision = await FilesetResolver.forVisionTasks(WASM_URL);
+    poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+      baseOptions: { modelAssetPath: MODEL_URL, delegate: "GPU" },
+      runningMode: "VIDEO",
+      numPoses: 1,
+    });
+  }
 
   // Turn on the camera (the browser asks the player for permission)
   const stream = await navigator.mediaDevices.getUserMedia({
     video: { width: 640, height: 480 },
   });
+  cameraStream = stream;
   video.srcObject = stream;
   video.muted = true;
   video.playsInline = true;
@@ -121,7 +133,30 @@ export async function initTracking(videoElement, canvasElement) {
   canvas.height = video.videoHeight;
   drawingUtils = new DrawingUtils(canvasContext);
 
-  requestAnimationFrame(loop);
+  lastVideoTime = -1;
+  animationFrameId = requestAnimationFrame(loop);
+}
+
+// Turns the camera off (the webcam light goes off) and stops the loop.
+// Call it at the end of the game. initTracking() turns it on again.
+export function stopCamera() {
+  isTracking = false;
+  if (animationFrameId !== null) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+  if (cameraStream !== null) {
+    for (const track of cameraStream.getTracks()) {
+      track.stop();
+    }
+    cameraStream = null;
+  }
+  if (video !== null) {
+    video.srcObject = null;
+  }
+  if (canvasContext !== null) {
+    canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+  }
 }
 
 // Starts counting compressions. All callbacks are optional:
@@ -130,6 +165,7 @@ export async function initTracking(videoElement, canvasElement) {
 //   onPause()                 once, each time the player stops for more than PAUSE_AFTER seconds
 //   onArmStatus(isStraight)   when the arm changes between straight and bent
 //   onArmDetected(isDetected) when we start or stop seeing the arm
+//   onDepth(isDeepEnough)     when the last pushes change between deep enough and too shallow
 export function startTracking(newCallbacks) {
   callbacks = newCallbacks || {};
   resetSession();
@@ -141,17 +177,31 @@ export function setSensitivity(value) {
   minMovement = value;
 }
 
+// Debug: change how deep a push must be to be "deep enough" (fraction of forearm length)
+export function setGoodDepth(value) {
+  minGoodDepth = value;
+}
+
 // Debug: what the tracker sees right now
 export function getDebugData() {
   let threshold = null;
+  let goodDepth = null;
   if (forearmLength !== null) {
     threshold = minMovement * forearmLength;
+    goodDepth = minGoodDepth * forearmLength;
+  }
+  let lastDepth = null;
+  if (pushDepths.length > 0) {
+    lastDepth = pushDepths[pushDepths.length - 1];
   }
   return {
     history: debugHistory,          // last 5 seconds of the signal
-    threshold: threshold,           // the minimum dip, in the same unit as height
+    threshold: threshold,           // the minimum dip to count, in the same unit as height
+    goodDepth: goodDepth,           // the dip needed to be deep enough, in the same unit as height
+    lastDepth: lastDepth,           // depth of the last push, in forearm lengths
     fps: frameTimes.length,         // camera images analysed per second
     minMovement: minMovement,
+    minGoodDepth: minGoodDepth,
   };
 }
 
@@ -180,12 +230,19 @@ export function stopTracking() {
     percentArmsStraight = Math.round((straightFrames / armFrames) * 100);
   }
 
+  // The depth is only measured from the 2nd push (it needs a top before it)
+  let percentDeepEnough = 0;
+  if (pushDepths.length > 0) {
+    percentDeepEnough = Math.round((deepPushCount / pushDepths.length) * 100);
+  }
+
   return {
     count: count,
     averageRate: averageRate,
     percentInRange: percentInRange,
     pauses: pauseCount,
     percentArmsStraight: percentArmsStraight,
+    percentDeepEnough: percentDeepEnough,
   };
 }
 
@@ -201,7 +258,7 @@ function loop() {
     const result = poseLandmarker.detectForVideo(video, nowMilliseconds);
     handleResult(result, nowMilliseconds / 1000);
   }
-  requestAnimationFrame(loop);
+  animationFrameId = requestAnimationFrame(loop);
 }
 
 function handleResult(result, time) {
@@ -324,8 +381,10 @@ function processFrame(arm, time) {
   if (smoothedHeight === null) {
     smoothedHeight = height;
   } else {
-    smoothedHeight = SMOOTHING * height + (1 - SMOOTHING) * smoothedHeight;
+    const weight = smoothingWeight(time);
+    smoothedHeight = weight * height + (1 - weight) * smoothedHeight;
   }
+  lastFrameTime = time;
 
   const compressionHere = detectDip(time);
   checkArmStraight(arm);
@@ -406,9 +465,8 @@ function registerCompression(time, depth) {
 
   // Depth of this push (only meaningful once we've seen a top before it)
   if (isFinite(depth) && depth > 0) {
-    amplitudes.push(depth);
+    checkDepth(depth);
   }
-  updateDepthStatus();
 
   // The rate needs at least 2 intervals, so it starts at the 3rd compression
   if (compressionTimes.length >= 3) {
@@ -432,19 +490,26 @@ function currentRate() {
   return 60 / median(intervals);
 }
 
-// Relative depth: compare the last 3 pushes with the first 5 pushes.
-// We can't measure real centimeters with a webcam, only "weaker than at the start".
-function updateDepthStatus() {
-  if (amplitudes.length < 6) {
-    depthStatus = "calibrating";
+// Depth: is the push deep enough?
+// depth = how far the arm went down, from the top before the push
+// to the bottom of the push, measured in forearm lengths (our ruler).
+function checkDepth(depth) {
+  pushDepths.push(depth);
+  if (depth >= minGoodDepth) {
+    deepPushCount = deepPushCount + 1;
+  }
+
+  // Wait for a few pushes, then judge the median of the last ones
+  // (the median ignores one odd push)
+  if (pushDepths.length < DEPTH_WINDOW) {
     return;
   }
-  const baseline = average(amplitudes.slice(0, 5));
-  const recent = average(amplitudes.slice(-3));
-  if (recent / baseline < 0.8) {
-    depthStatus = "weaker";
-  } else {
-    depthStatus = "steady";
+  const recentDepth = median(pushDepths.slice(-DEPTH_WINDOW));
+  const isDeepEnough = recentDepth >= minGoodDepth;
+
+  if (isDeepEnough !== lastDeepEnough) {
+    lastDeepEnough = isDeepEnough;
+    callIfGiven("onDepth", isDeepEnough);
   }
 }
 
@@ -498,8 +563,10 @@ function resetSession() {
   lowestPoint = Infinity;
   highestPoint = -Infinity;
   lowestTime = 0;
+  lastFrameTime = null;
   compressionTimes = [];
-  amplitudes = [];
+  pushDepths = [];
+  deepPushCount = 0;
   inRangeCount = 0;
   pauseCount = 0;
   inPause = false;
@@ -507,8 +574,21 @@ function resetSession() {
   armFrames = 0;
   lastArmDetected = null;
   lastArmStraight = null;
-  depthStatus = "calibrating";
+  lastDeepEnough = null;
   debugHistory = [];
+}
+
+// How much the new image counts in the smoothing.
+// SMOOTHING is the right value at 30 images per second. With fewer images
+// per second (a slow webcam), each image must count more, otherwise the
+// smoothing flattens the dips and the pushes look less deep than they are.
+// The formula gives the same smoothing per second at any frame rate.
+function smoothingWeight(time) {
+  if (lastFrameTime === null) {
+    return SMOOTHING;
+  }
+  const framesAt30 = (time - lastFrameTime) * 30; // 1 at 30 fps, 2 at 15 fps
+  return 1 - Math.pow(1 - SMOOTHING, framesAt30);
 }
 
 // Debug: remember the signal of the last 5 seconds
@@ -566,12 +646,4 @@ function median(list) {
     return sorted[middle];
   }
   return (sorted[middle - 1] + sorted[middle]) / 2;
-}
-
-function average(list) {
-  let sum = 0;
-  for (const value of list) {
-    sum = sum + value;
-  }
-  return sum / list.length;
 }

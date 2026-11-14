@@ -589,14 +589,16 @@ body[data-screen="home"] main {
   gap: 14px;
 }
 
-/* camera.js sets the class of #setup-arm to "good", "warn" or "" */
-#setup-arm {
+/* camera.js sets the class of #setup-arm and #setup-depth to "good", "warn", "bad" or "" */
+#setup-arm,
+#setup-depth {
   padding: 8px 16px;
   border-radius: 999px;
   background: var(--surface-2);
 }
 
-#setup-arm:empty { display: none; }
+#setup-arm:empty,
+#setup-depth:empty { display: none; }
 
 .count-chip {
   display: inline-flex;
@@ -873,7 +875,7 @@ body[data-screen="home"] main {
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -1011,7 +1013,7 @@ body[data-screen="home"] main {
   .panda-big { width: 110px; height: 110px; }
   .path-mascot { display: none; }
   .big-number { font-size: 52px; }
-  .stat { font-size: 10px; letter-spacing: 0.3px; }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .coach { gap: 14px; }
 }
 
@@ -1021,4 +1023,12 @@ body[data-screen="home"] main {
     animation: none !important;
     transition: none !important;
   }
+}
+
+/* "Push deeper!" reminder on the compressions screen */
+#live-depth-reminder {
+  min-height: 28px;
+  margin-top: 0;
+  font-size: 22px;
+  font-weight: 700;
 }
