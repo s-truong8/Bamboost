@@ -49,6 +49,8 @@ let canvasContext = null;
 let poseLandmarker = null;
 let drawingUtils = null;
 let lastVideoTime = -1;
+let cameraStream = null;        // the webcam, so we can turn it off at the end
+let animationFrameId = null;    // the next loop() call, so we can cancel it
 
 // Are we counting compressions right now? (between startTracking and stopTracking)
 let isTracking = false;
@@ -90,24 +92,28 @@ let depthStatus = "calibrating";
 
 // Loads the pose model and turns on the camera.
 // Returns a Promise: it finishes when the camera image is ready.
-// After this, the skeleton is drawn on the canvas all the time.
+// After this, the skeleton is drawn on the canvas until stopCamera().
+// It can be called again after stopCamera(): the model is only loaded once.
 export async function initTracking(videoElement, canvasElement) {
   video = videoElement;
   canvas = canvasElement;
   canvasContext = canvas.getContext("2d");
 
-  // Load the pose model
-  const vision = await FilesetResolver.forVisionTasks(WASM_URL);
-  poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
-    baseOptions: { modelAssetPath: MODEL_URL, delegate: "GPU" },
-    runningMode: "VIDEO",
-    numPoses: 1,
-  });
+  // Load the pose model (only the first time: it is slow)
+  if (poseLandmarker === null) {
+    const vision = await FilesetResolver.forVisionTasks(WASM_URL);
+    poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+      baseOptions: { modelAssetPath: MODEL_URL, delegate: "GPU" },
+      runningMode: "VIDEO",
+      numPoses: 1,
+    });
+  }
 
   // Turn on the camera (the browser asks the player for permission)
   const stream = await navigator.mediaDevices.getUserMedia({
     video: { width: 640, height: 480 },
   });
+  cameraStream = stream;
   video.srcObject = stream;
   video.muted = true;
   video.playsInline = true;
@@ -121,7 +127,30 @@ export async function initTracking(videoElement, canvasElement) {
   canvas.height = video.videoHeight;
   drawingUtils = new DrawingUtils(canvasContext);
 
-  requestAnimationFrame(loop);
+  lastVideoTime = -1;
+  animationFrameId = requestAnimationFrame(loop);
+}
+
+// Turns the camera off (the webcam light goes off) and stops the loop.
+// Call it at the end of the game. initTracking() turns it on again.
+export function stopCamera() {
+  isTracking = false;
+  if (animationFrameId !== null) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+  if (cameraStream !== null) {
+    for (const track of cameraStream.getTracks()) {
+      track.stop();
+    }
+    cameraStream = null;
+  }
+  if (video !== null) {
+    video.srcObject = null;
+  }
+  if (canvasContext !== null) {
+    canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+  }
 }
 
 // Starts counting compressions. All callbacks are optional:
@@ -201,7 +230,7 @@ function loop() {
     const result = poseLandmarker.detectForVideo(video, nowMilliseconds);
     handleResult(result, nowMilliseconds / 1000);
   }
-  requestAnimationFrame(loop);
+  animationFrameId = requestAnimationFrame(loop);
 }
 
 function handleResult(result, time) {

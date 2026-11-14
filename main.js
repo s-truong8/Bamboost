@@ -2,7 +2,7 @@
 // It owns the shared game state, shows one screen at a time,
 // and (later) will call the other files at the right moment.
 
-import { enterSetupScreen, leaveSetupScreen, enterCompressionsScreen, leaveCompressionsScreen } from "./camera.js";
+import { enterSetupScreen, leaveSetupScreen, enterCompressionsScreen, leaveCompressionsScreen, isCameraReady, turnOffCamera } from "./camera.js";
 
 // These imports are not used yet. They are here so that a mistake in one
 // of these files shows up in the console as soon as the page opens.
@@ -60,6 +60,10 @@ export function showScreen(name) {
   if (name === "compressions") {
     enterCompressionsScreen(game);
   }
+  // The camera stays on from the setup screen until the end of the game
+  if (name === "results") {
+    turnOffCamera();
+  }
 }
 
 // ============================================================
@@ -70,6 +74,12 @@ export function showScreen(name) {
 const nextButtons = document.querySelectorAll(".next-button");
 for (const button of nextButtons) {
   button.addEventListener("click", function () {
-    showScreen(button.dataset.next);
+    let nextScreen = button.dataset.next;
+    // The setup screen is the check before each game:
+    // if the camera already works, it is not needed.
+    if (nextScreen === "setup" && isCameraReady()) {
+      nextScreen = "tutorial";
+    }
+    showScreen(nextScreen);
   });
 }

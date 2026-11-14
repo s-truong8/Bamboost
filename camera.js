@@ -5,7 +5,7 @@
 // main.js calls the 4 functions at the bottom when the player enters or
 // leaves one of these screens.
 
-import { initTracking, startTracking, stopTracking, setSensitivity, getDebugData } from "./tracking.js";
+import { initTracking, startTracking, stopTracking, stopCamera, setSensitivity, getDebugData } from "./tracking.js";
 
 // Same target as in tracking.js: 100 to 120 compressions per minute
 const TARGET_MIN = 100;
@@ -23,6 +23,7 @@ const cameraButton = document.getElementById("camera-button");
 const setupStatus = document.getElementById("setup-status");
 const setupArm = document.getElementById("setup-arm");
 const setupCount = document.getElementById("setup-count");
+const setupRate = document.getElementById("setup-rate");
 
 // Debug panel (setup screen)
 const debugPanel = document.getElementById("debug-panel");
@@ -93,6 +94,7 @@ async function turnOnCamera() {
 function startSetupCheck() {
   compressionCount = 0;
   setupCount.textContent = "0";
+  setupRate.textContent = "–";
   setupArm.textContent = "Looking for your arm…";
   setupArm.className = "";
 
@@ -109,6 +111,14 @@ function startSetupCheck() {
     onCompression: function () {
       compressionCount = compressionCount + 1;
       setupCount.textContent = compressionCount;
+    },
+    // The rate appears from the 3rd compression (it needs 2 gaps between pushes)
+    onRate: function (rate) {
+      setupRate.textContent = Math.round(rate);
+    },
+    // When the player stops, the old rate is no longer true: hide it
+    onPause: function () {
+      setupRate.textContent = "–";
     },
   });
   isCounting = true;
@@ -232,6 +242,7 @@ function startLiveFeedback(game) {
       }
     },
     onPause: function () {
+      liveRate.textContent = "–"; // the old rate is no longer true
       pauseCount = pauseCount + 1;
       livePauses.textContent = pauseCount;
       showFeedback("Keep going!", "bad");
@@ -263,6 +274,26 @@ function showFeedback(text, colorClass) {
 // ============================================================
 // CALLED BY main.js WHEN THE PLAYER ENTERS OR LEAVES A CAMERA SCREEN
 // ============================================================
+// End of the game: turn the camera off and put the setup screen back
+// to its first state, ready for the next game.
+export function turnOffCamera() {
+  if (!cameraReady) {
+    return;
+  }
+  stopCamera();
+  cameraReady = false;
+  isCounting = false;
+  cameraButton.disabled = false;
+  cameraButton.textContent = "Turn on the camera";
+  setupStatus.textContent = "Put the camera to your side, so it sees you and the cushion. Then turn it on.";
+}
+
+// True once the camera and the pose model are working.
+// The game flow uses it to skip the setup screen when the player plays again.
+export function isCameraReady() {
+  return cameraReady;
+}
+
 export function enterSetupScreen() {
   currentScreen = "setup";
   cameraBox.classList.add("visible");

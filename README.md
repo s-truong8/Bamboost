@@ -99,6 +99,7 @@ Notes:
 - Call `initTracking` once. After it, the camera stays on and the skeleton is drawn on the canvas.
 - The canvas must sit exactly on top of the video in CSS (same size) for the skeleton to line up.
 - You can call `startTracking` again after `stopTracking` to play again.
+- `stopCamera()` turns the webcam off at the end of the game (the results screen). `initTracking` turns it on again; the model is not reloaded.
 - Debug only (used by the debug panel on the setup screen): `setSensitivity(value)` changes the minimum dip (default 0.07 forearm length), and `getDebugData()` returns the last 5 seconds of the signal and the camera fps. The game itself should not need them.
 
 ### script.json format
