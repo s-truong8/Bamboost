@@ -44,9 +44,9 @@
     "source": "DRAFT: check against official guidelines, and the emergency number of your country",
     "line": "He doesn't respond and isn't breathing normally. What do you do now?",
     "choices": [
-      {"text": "Call 112 and put the phone on speaker", "correct": true, "next": "dispatcher", "feedback": "Speaker mode keeps your hands free for compressions."},
-      {"text": "Drive him to the hospital myself", "correct": false, "feedback": "Too slow, and dangerous. Call 112: help comes to you."},
-      {"text": "Call a friend to ask what to do", "correct": false, "feedback": "Call 112: the dispatcher is trained to guide you."}
+      {"text": "Call 911 and put the phone on speaker", "correct": true, "next": "dispatcher", "feedback": "Speaker mode keeps your hands free for compressions."},
+      {"text": "Drive him to the hospital myself", "correct": false, "feedback": "Too slow, and dangerous. Call 911: help comes to you."},
+      {"text": "Call a friend to ask what to do", "correct": false, "feedback": "Call 911: the dispatcher is trained to guide you."}
     ],
     "timeLimit": 8
   },
@@ -55,7 +55,7 @@
     "title": "Talk to the dispatcher",
     "speaker": "dispatcher",
     "source": "DRAFT: check against official guidelines",
-    "line": "112, what is your emergency?",
+    "line": "911, what is your emergency?",
     "choices": [
       {"text": "A man collapsed. He doesn't respond and isn't breathing normally. We're at [address].", "correct": true, "next": "end", "feedback": "Clear and complete: what happened, his state, and where you are. Now, start compressions!"},
       {"text": "Hurry, come quickly!", "correct": false, "feedback": "The dispatcher needs details: what happened, his state, and your address."}

@@ -46,7 +46,7 @@
          (scene, decisions, tutorial, compressions, ambulance).
          main.js adds the class "game-mode" to <body> on those screens.
          Classes added on #victim-scene change the drawing:
-         - "after-call" (scenario.js): the phone with 112 appears
+         - "after-call" (scenario.js): the phone with 911 appears
          - "press" (camera.js): the chest goes down for one compression
          ============================================================ -->
     <div id="victim-scene">
@@ -55,6 +55,9 @@
            around it gets the sky and sidewalk colors from style.css). -->
       <svg class="victim" viewBox="0 130 1600 900" preserveAspectRatio="xMidYMin meet"
            role="img" aria-label="A street. A man lies unconscious on the sidewalk.">
+        <!-- .victim-world: the whole drawing. style.css zooms it on the chest during
+             the tutorial and the compressions (like a camera zoom). -->
+        <g class="victim-world">
         <!-- background: sky and buildings -->
         <rect x="0" y="0" width="1600" height="1100" fill="#fdf0dd"/>
         <g fill="#f4e0c6">
@@ -106,6 +109,13 @@
             <rect x="86" y="88" width="118" height="30" rx="14" fill="#4f7fd9"/>
             <rect x="98" y="108" width="82" height="10" rx="5" fill="#3f68b8"/>
             <circle cx="182" cy="113" r="6" fill="#e9b88f"/>
+            <!-- where to put the hands: a pulsing ring and a label.
+                 Only visible on the tutorial and compressions screens (style.css) -->
+            <g id="victim-target">
+              <circle class="target-ring" cx="139" cy="86" r="24" fill="none" stroke="#f47b20" stroke-width="3" stroke-dasharray="7 5"/>
+              <!-- under the chest, on the sidewalk: the camera window hides the right side -->
+              <text x="139" y="131" font-size="9" font-weight="900" fill="#c25a0c" text-anchor="middle">Hands here</text>
+            </g>
             <!-- the player's hands, only during compressions -->
             <g id="victim-hands">
               <rect x="122" y="-60" width="16" height="140" rx="6" fill="#8a6f5c"/>
@@ -129,10 +139,11 @@
           <g id="victim-phone">
             <rect x="14" y="88" width="22" height="32" rx="4" fill="#2a2a2a"/>
             <rect x="17" y="92" width="16" height="22" rx="2" fill="#3fb867"/>
-            <text x="25" y="107" font-size="8" font-weight="900" fill="#ffffff" text-anchor="middle">112</text>
+            <text x="25" y="107" font-size="8" font-weight="900" fill="#ffffff" text-anchor="middle">911</text>
           </g>
         </g>
         </g>
+              </g>
       </svg>
     </div>
 
