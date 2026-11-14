@@ -115,6 +115,8 @@ The design is in `style.css` (colors at the top, in `:root`). `showScreen` sets 
 
 **Game mode.** On the emergency screens (`scene`, `decisions`, `tutorial`, `compressions`, `ambulance`), `showScreen` adds the class `game-mode` to `<body>`. The drawing `#victim-scene` (a street with the collapsed man) then fills the whole screen, and each screen is a dialogue box at the bottom (`.dialogue`: portrait, name, text, actions). During compressions the camera is a small window in the corner. The drawing changes with classes on `#victim-scene`: `after-<step id>` (added by `scenario.js` when a step is validated: `after-call` shows the phone) and `press` (added by `camera.js` at each compression).
 
+**Zoom circle.** On the same two screens, a round window (`#hands-lens`, top-left) shows a close-up of the chest from above: hands stacked, fingers interlaced, the heel of the hand on the center of the chest. Its hands dip at each compression. It is hidden on screens narrower than 1000 px. Check the hand placement against official guidelines before the demo.
+
 **Chest zoom.** On the `tutorial` and `compressions` screens, `style.css` zooms the whole drawing (the group `.victim-world`) 2.4x onto the man's chest, with a pulsing ring and the label "Hands here". The numbers are in the `translate(...) scale(2.4)` rule: to move the chest on the screen, change the two `translate` values; to zoom more or less, change the `2.4`.
 
 Elements filled by `scenario.js` (decisions screen):

@@ -84,17 +84,23 @@
 
         <!-- the ambulance, on the ambulance screen only (drives in from the right).
              Drawn before the man, so it is behind him, on the street. -->
-        <g id="scene-ambulance" transform="translate(1240 360) scale(1.6)">
+        <g id="scene-ambulance" transform="translate(1100 276) scale(2.4)">
           <g class="ambulance-body">
-            <rect class="siren" x="60" y="30" width="22" height="10" rx="3"/>
-            <rect x="20" y="40" width="112" height="56" rx="8" fill="#ffffff" stroke="#141414" stroke-width="2"/>
-            <path d="M130 52h30l22 22v22h-52z" fill="#ffffff" stroke="#141414" stroke-width="2"/>
-            <path d="M140 58h18l16 16h-34z" fill="#7cc4ff"/>
-            <rect x="20" y="80" width="162" height="7" fill="#D7261E"/>
-            <rect x="65" y="46" width="10" height="28" rx="2" fill="#D7261E"/>
-            <rect x="56" y="55" width="28" height="10" rx="2" fill="#D7261E"/>
-            <circle cx="50" cy="98" r="12" fill="#3b2416"/><circle cx="50" cy="98" r="5" fill="#a8968a"/>
-            <circle cx="154" cy="98" r="12" fill="#3b2416"/><circle cx="154" cy="98" r="5" fill="#a8968a"/>
+            <ellipse class="amb-shadow" cx="101" cy="111" rx="86" ry="6" fill="#141414" opacity="0.18"/>
+            <!-- mirrored so the cab faces left, the way it drives -->
+            <g class="amb-bounce"><g transform="translate(202 0) scale(-1 1)">
+              <circle class="siren-glow" cx="71" cy="35" r="16"/>
+              <rect class="siren" x="60" y="30" width="22" height="10" rx="3"/>
+              <rect x="20" y="40" width="112" height="56" rx="8" fill="#ffffff" stroke="#141414" stroke-width="2"/>
+              <path d="M130 52h30l22 22v22h-52z" fill="#ffffff" stroke="#141414" stroke-width="2"/>
+              <path d="M140 58h18l16 16h-34z" fill="#7cc4ff"/>
+              <rect x="20" y="80" width="162" height="7" fill="#D7261E"/>
+              <rect x="65" y="46" width="10" height="28" rx="2" fill="#D7261E"/>
+              <rect x="56" y="55" width="28" height="10" rx="2" fill="#D7261E"/>
+              <rect class="headlight" x="176" y="84" width="6" height="6" rx="2" fill="#ffe27a"/>
+            </g></g>
+            <g class="wheel"><circle cx="152" cy="98" r="12" fill="#3b2416"/><circle cx="152" cy="98" r="5" fill="#a8968a"/><rect x="151" y="88" width="2" height="20" fill="#a8968a"/></g>
+            <g class="wheel"><circle cx="48" cy="98" r="12" fill="#3b2416"/><circle cx="48" cy="98" r="5" fill="#a8968a"/><rect x="47" y="88" width="2" height="20" fill="#a8968a"/></g>
           </g>
         </g>
         <!-- the man, lying on his back, head on the left (drawn at 2.4x, centered) -->
@@ -145,6 +151,95 @@
         </g>
               </g>
       </svg>
+    </div>
+
+    <!-- THE ZOOM CIRCLE: a close-up of the chest, seen from above (head on the left,
+         like the man in the scene; the player kneels at his side, at the bottom).
+         Visible on the tutorial and compressions screens only (style.css).
+         - tutorial: a looping animation, step by step (find the center, one hand,
+           the other hand on top, interlace the fingers, push). Captions = .lens-step
+         - compressions: the final position, and the hands dip at each compression
+         It must stay right after #victim-scene: the hands dip with the chest
+         through the CSS rule "#victim-scene.press + #hands-lens". -->
+    <div id="hands-lens" aria-label="Close-up: how to place your hands on the chest">
+      <p class="lens-tag">Zoom</p>
+      <div class="lens-circle">
+        <svg viewBox="-100 -100 200 200" aria-hidden="true">
+          <!-- the shirt, from above -->
+          <rect x="-100" y="-100" width="200" height="200" fill="#4f7fd9"/>
+          <!-- the neck and collar, on the left (head side) -->
+          <path d="M-100 -34 Q-74 0 -100 34 Z" fill="#f1c7a3"/>
+          <path d="M-100 -40 Q-68 0 -100 40" fill="none" stroke="#3f68b8" stroke-width="4"/>
+          <!-- ribs, faint -->
+          <g fill="none" stroke="#5b8be0" stroke-width="3" stroke-linecap="round">
+            <path d="M-50 -10 Q-40 -70 -10 -88"/><path d="M-50 10 Q-40 70 -10 88"/>
+            <path d="M-20 -10 Q-10 -70 20 -90"/><path d="M-20 10 Q-10 70 20 90"/>
+            <path d="M10 -10 Q22 -64 48 -84"/><path d="M10 10 Q22 64 48 84"/>
+          </g>
+          <!-- landmarks: the breastbone (sternum) and the nipple line -->
+          <line x1="-74" y1="0" x2="34" y2="0" stroke="#24467f" stroke-width="5" stroke-dasharray="1 9" stroke-linecap="round"/>
+          <line class="lens-nipple-line" x1="0" y1="-92" x2="0" y2="92" stroke="#ffffff" stroke-width="2" stroke-dasharray="5 5"/>
+          <circle cx="0" cy="-46" r="4" fill="#24467f"/>
+          <circle cx="0" cy="46" r="4" fill="#24467f"/>
+          <g class="lens-labels" font-family="sans-serif" font-size="9" font-weight="800" fill="#ffffff">
+            <text x="-70" y="-7">breastbone</text>
+            <text x="6" y="-60">nipple line</text>
+          </g>
+          <!-- the target: center of the chest, on the breastbone, between the nipples -->
+          <circle class="lens-ring" cx="0" cy="0" r="26" fill="none" stroke="#D7261E" stroke-width="4" stroke-dasharray="8 6"/>
+          <circle class="lens-target" cx="0" cy="0" r="6" fill="#D7261E" stroke="#ffffff" stroke-width="2"/>
+
+          <!-- the player's hands, coming from the bottom, fingers pointing across the chest -->
+          <g class="lens-hands">
+            <g class="lens-push">
+              <!-- 1st hand, flat on the chest -->
+              <g class="hand-bottom">
+                <!-- arm (skin at the wrist, then the sleeve), going down to the player -->
+                <path d="M-17 2 L17 2 L6 46 L-30 46 Z" fill="#e9b88f" stroke="#c99a76" stroke-width="1.5"/>
+                <path d="M-27 36 L9 36 L-6 120 L-56 120 Z" fill="#8a6f5c"/>
+                <!-- thumb -->
+                <rect x="-36" y="-40" width="11" height="30" rx="5.5" transform="rotate(-28 -30 -12)" fill="#e9b88f" stroke="#c99a76" stroke-width="1.5"/>
+                <!-- palm: the heel of the hand is its bottom part, on the target -->
+                <rect x="-22" y="-50" width="44" height="58" rx="15" fill="#e9b88f" stroke="#c99a76" stroke-width="1.5"/>
+                <g class="bottom-fingers">
+                  <rect x="-19.5" y="-84" width="9" height="40" rx="4.5" fill="#e9b88f" stroke="#c99a76" stroke-width="1.5"/>
+                  <rect x="-9.5" y="-90" width="9" height="46" rx="4.5" fill="#e9b88f" stroke="#c99a76" stroke-width="1.5"/>
+                  <rect x="0.5" y="-86" width="9" height="42" rx="4.5" fill="#e9b88f" stroke="#c99a76" stroke-width="1.5"/>
+                  <rect x="10.5" y="-76" width="9" height="32" rx="4.5" fill="#e9b88f" stroke="#c99a76" stroke-width="1.5"/>
+                </g>
+              </g>
+              <!-- 2nd hand, on top of the first one (mirrored: the thumb is on the other side) -->
+              <g class="hand-top">
+                <g transform="translate(0 -3) scale(-1 1)">
+                <!-- arm (skin at the wrist, then the sleeve), going down to the player -->
+                <path d="M-17 2 L17 2 L6 46 L-30 46 Z" fill="#f6d6b8" stroke="#c99a76" stroke-width="1.5"/>
+                <path d="M-27 36 L9 36 L-6 120 L-56 120 Z" fill="#a08573"/>
+                <!-- thumb -->
+                <rect x="-36" y="-40" width="11" height="30" rx="5.5" transform="rotate(-28 -30 -12)" fill="#f6d6b8" stroke="#c99a76" stroke-width="1.5"/>
+                <!-- palm: the heel of the hand is its bottom part, on the target -->
+                <rect x="-22" y="-50" width="44" height="58" rx="15" fill="#f6d6b8" stroke="#c99a76" stroke-width="1.5"/>
+                <g class="top-fingers">
+                  <rect x="-19.5" y="-84" width="9" height="40" rx="4.5" fill="#f6d6b8" stroke="#c99a76" stroke-width="1.5"/>
+                  <rect x="-9.5" y="-90" width="9" height="46" rx="4.5" fill="#f6d6b8" stroke="#c99a76" stroke-width="1.5"/>
+                  <rect x="0.5" y="-86" width="9" height="42" rx="4.5" fill="#f6d6b8" stroke="#c99a76" stroke-width="1.5"/>
+                  <rect x="10.5" y="-76" width="9" height="32" rx="4.5" fill="#f6d6b8" stroke="#c99a76" stroke-width="1.5"/>
+                </g>
+                </g>
+              </g>
+              <!-- the heel of the hand: where the push goes -->
+              <circle class="lens-heel" cx="0" cy="0" r="6" fill="#D7261E" stroke="#ffffff" stroke-width="2"/>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <p class="lens-caption">
+        <span class="lens-step" style="--i: 0">1. Center of the chest, on the breastbone</span>
+        <span class="lens-step" style="--i: 1">2. Heel of one hand on the center</span>
+        <span class="lens-step" style="--i: 2">3. Other hand on top</span>
+        <span class="lens-step" style="--i: 3">4. Interlace your fingers, lift them off the ribs</span>
+        <span class="lens-step" style="--i: 4">5. Arms straight, push 5 to 6 cm</span>
+        <span class="lens-final">Heel on the center, fingers interlaced</span>
+      </p>
     </div>
 
     <!-- The webcam image with the skeleton drawn on top. -->
@@ -361,8 +456,12 @@
           </div>
         </div>
         <div class="dialogue-actions">
-          <!-- TEMPORARY: the team still has to decide how the compressions end (a timer?) -->
-          <button class="next-button btn" data-next="ambulance">Continue</button>
+          <!-- main.js counts down from 30 s, then the ambulance arrives -->
+          <div class="ambulance-timer">
+            <span class="timer-label">Ambulance in</span>
+            <strong id="ambulance-countdown">30</strong>
+            <span class="timer-label">sec</span>
+          </div>
         </div>
       </div>
     </section>

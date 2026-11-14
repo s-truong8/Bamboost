@@ -50,6 +50,7 @@ export function showScreen(name) {
     leaveSetupScreen();
   }
   if (currentScreenName === "compressions") {
+    stopAmbulanceTimer();
     leaveCompressionsScreen(game);
   }
   // Stop the step timer if the player quits during the steps
@@ -91,12 +92,41 @@ export function showScreen(name) {
   }
   if (name === "compressions") {
     enterCompressionsScreen(game);
+    startAmbulanceTimer();
   }
   if (name === "results") {
     // The camera stays on from the setup screen until the end of the game
     turnOffCamera();
     showResults();
   }
+}
+
+// ============================================================
+// AMBULANCE TIMER: 30 seconds of compressions, then the ambulance arrives
+// ============================================================
+const AMBULANCE_DELAY = 30; // seconds
+let ambulanceTimerId = null;
+
+function stopAmbulanceTimer() {
+  clearInterval(ambulanceTimerId);
+  ambulanceTimerId = null;
+}
+
+function startAmbulanceTimer() {
+  stopAmbulanceTimer();
+  const display = document.getElementById("ambulance-countdown");
+  const endTime = performance.now() + AMBULANCE_DELAY * 1000;
+  display.textContent = AMBULANCE_DELAY;
+  display.classList.remove("timer-low");
+  // We read the real clock each time, because setInterval can run late
+  ambulanceTimerId = setInterval(function () {
+    const left = Math.max(0, Math.ceil((endTime - performance.now()) / 1000));
+    display.textContent = left;
+    display.classList.toggle("timer-low", left <= 5);
+    if (left === 0) {
+      showScreen("ambulance");
+    }
+  }, 200);
 }
 
 // ============================================================
