@@ -2,9 +2,10 @@
 // It owns the shared game state, shows one screen at a time,
 // and (later) will call the other files at the right moment.
 
+import { enterSetupScreen, leaveSetupScreen, enterCompressionsScreen, leaveCompressionsScreen } from "./camera.js";
+
 // These imports are not used yet. They are here so that a mistake in one
 // of these files shows up in the console as soon as the page opens.
-import { initTracking, startTracking, stopTracking } from "./tracking.js";
 import { loadScript, playStep } from "./scenario.js";
 import { computeScore } from "./score.js";
 
@@ -27,18 +28,38 @@ export const game = {
 // Show one screen and hide all the others.
 // name is the part after "screen-": "home", "setup", "tutorial", "scene",
 // "decisions", "compressions", "ambulance" or "results".
-export function showScreen(name) {
-  const allScreens = document.querySelectorAll(".screen");
-  for (const screen of allScreens) {
-    screen.classList.remove("active");
-  }
+let currentScreenName = "home";
 
+export function showScreen(name) {
   const screenToShow = document.getElementById("screen-" + name);
   if (screenToShow === null) {
     console.error("showScreen: there is no screen called " + name);
     return;
   }
+
+  // Tell camera.js when we leave one of its screens
+  if (currentScreenName === "setup") {
+    leaveSetupScreen();
+  }
+  if (currentScreenName === "compressions") {
+    leaveCompressionsScreen(game);
+  }
+
+  const allScreens = document.querySelectorAll(".screen");
+  for (const screen of allScreens) {
+    screen.classList.remove("active");
+  }
+
   screenToShow.classList.add("active");
+  currentScreenName = name;
+
+  // Tell camera.js when we enter one of its screens
+  if (name === "setup") {
+    enterSetupScreen();
+  }
+  if (name === "compressions") {
+    enterCompressionsScreen(game);
+  }
 }
 
 // ============================================================

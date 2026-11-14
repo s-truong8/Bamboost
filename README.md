@@ -26,6 +26,7 @@ Opening `index.html` by double-clicking does not work: ES modules and the camera
 | `style.css` | Layout and color theme. |
 | `main.js` | Shared `game` state, `showScreen(name)`, temporary Next buttons. |
 | `tracking.js` | Webcam and pose detection: counts compressions, rate, pauses, arm straightness. The only file that uses MediaPipe. |
+| `camera.js` | Connects `tracking.js` to the setup and compressions screens: camera button, arm check, live feedback. |
 | `scenario.js` | Dispatcher conversation: `loadScript()` and `playStep(id)`. Stubs for now. |
 | `score.js` | `computeScore(game)`: turns the game state into a grade. Fake values for now. |
 | `script.json` | The dispatcher lines and choices. Placeholders for now. |
@@ -98,6 +99,7 @@ Notes:
 - Call `initTracking` once. After it, the camera stays on and the skeleton is drawn on the canvas.
 - The canvas must sit exactly on top of the video in CSS (same size) for the skeleton to line up.
 - You can call `startTracking` again after `stopTracking` to play again.
+- Debug only (used by the debug panel on the setup screen): `setSensitivity(value)` changes the minimum dip (default 0.07 forearm length), and `getDebugData()` returns the last 5 seconds of the signal and the camera fps. The game itself should not need them.
 
 ### script.json format
 

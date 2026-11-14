@@ -90,3 +90,103 @@ button:disabled {
   opacity: 0.5;
   cursor: default;
 }
+
+/* Camera: the canvas (skeleton) sits exactly on top of the video. */
+/* Both are flipped with scaleX(-1) so it feels like a mirror. */
+#camera-box {
+  display: none;
+  position: relative;
+  max-width: 480px;
+  margin: 0 auto 16px;
+  aspect-ratio: 4 / 3;
+  background: #000000;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+#camera-box.visible {
+  display: block;
+}
+
+#camera-box video,
+#camera-box canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(-1);
+}
+
+/* Live feedback on the compressions screen */
+.screen .big-number {
+  margin: 0;
+  font-size: 64px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.screen .big-number small {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--muted-text);
+}
+
+#live-feedback {
+  min-height: 32px;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat {
+  min-width: 110px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--muted-text);
+}
+
+.stat strong {
+  display: block;
+  font-size: 22px;
+  color: var(--text);
+}
+
+/* Feedback colors (after the rules above so they win) */
+.screen .good, .stat .good { color: #2e7d32; }
+.screen .warn, .stat .warn { color: #b26a00; }
+.screen .bad { color: #c62828; }
+
+/* Debug panel on the setup screen (for the team) */
+#debug-panel {
+  margin: 16px 0;
+  text-align: left;
+}
+
+#debug-canvas {
+  display: block;
+  width: 100%;
+  height: 140px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--muted-text);
+}
+
+.slider-row input {
+  flex: 1;
+}

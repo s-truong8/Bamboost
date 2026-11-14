@@ -17,6 +17,13 @@
   <!-- Each temporary Next button says where it goes with data-next="...". -->
   <main>
 
+    <!-- The webcam image with the skeleton drawn on top. -->
+    <!-- camera.js shows it only on the setup and compressions screens. -->
+    <div id="camera-box">
+      <video id="camera-video" autoplay playsinline muted></video>
+      <canvas id="camera-canvas"></canvas>
+    </div>
+
     <section id="screen-home" class="screen active">
       <h2>Home</h2>
       <p>[MASCOT NAME] the panda welcomes the player here.</p>
@@ -25,7 +32,23 @@
 
     <section id="screen-setup" class="screen">
       <h2>Setup (camera check)</h2>
-      <p>The player checks that the webcam sees them and the cushion.</p>
+      <p id="setup-status">Put the camera to your side, so it sees you and the cushion. Then turn it on.</p>
+      <p><button id="camera-button">Turn on the camera</button></p>
+      <p id="setup-arm"></p>
+      <p>Test compressions counted: <strong id="setup-count">0</strong></p>
+
+      <!-- For the team only: to see and tune what the tracker sees -->
+      <details id="debug-panel">
+        <summary>Debug: arm height (last 5 s)</summary>
+        <canvas id="debug-canvas" width="600" height="140"></canvas>
+        <p id="debug-info"></p>
+        <label class="slider-row">
+          Min. movement
+          <input type="range" id="debug-slider" min="0.02" max="0.3" step="0.01" value="0.07">
+          <span id="debug-slider-value">0.07</span>
+        </label>
+      </details>
+
       <button class="next-button" data-next="tutorial">Next</button>
     </section>
 
@@ -49,7 +72,13 @@
 
     <section id="screen-compressions" class="screen">
       <h2>Compressions</h2>
-      <p>The player does chest compressions on a cushion in front of the webcam.</p>
+      <p class="big-number"><span id="live-rate">–</span> <small>/min</small></p>
+      <p id="live-feedback"></p>
+      <div class="stats">
+        <div class="stat">Compressions<strong id="live-count">0</strong></div>
+        <div class="stat">Pauses<strong id="live-pauses">0</strong></div>
+        <div class="stat">Arms<strong id="live-arms">–</strong></div>
+      </div>
       <button class="next-button" data-next="ambulance">Next</button>
     </section>
 

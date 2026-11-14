@@ -5,6 +5,10 @@
 //   await initTracking(videoElement, canvasElement);   // once
 //   startTracking({ onCompression, onRate, onPause, onArmStatus, onArmDetected });
 //   const stats = stopTracking();
+//
+// Two extra functions for the debug panel (to tune the tracking):
+//   setSensitivity(value)   changes minMovement while the game runs
+//   getDebugData()          the last 5 seconds of the signal, for a graph
 
 import { PoseLandmarker, FilesetResolver, DrawingUtils }
   from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3";
@@ -18,7 +22,8 @@ const MIN_INTERVAL = 0.3;        // seconds: two compressions can't be closer th
 const PAUSE_AFTER = 2.0;         // seconds without a compression = a pause
 const SMOOTHING = 0.5;           // 0 = very smooth (slow), 1 = no smoothing (jittery)
 const STRAIGHT_ARM_ANGLE = 160;  // degrees: above this, the arm counts as straight
-const MIN_MOVEMENT = 0.1;        // how deep a dip must be, as a fraction of forearm length
+let minMovement = 0.07;          // how deep a dip must be, as a fraction of forearm length
+                                 // (lower = counts smaller pushes, but also camera jitter)
 const MIN_VISIBILITY = 0.6;      // only trust arm points the model is confident about (0 to 1)
 const MAX_JUMP = 0.8;            // a wrist can't move more than 0.8 forearm in one frame
 const MAX_GLITCH_FRAMES = 10;    // after this many "jump" frames, the person really moved
@@ -66,6 +71,10 @@ let pauseCount = 0;
 let inPause = false;
 let straightFrames = 0;         // frames where the arm was straight
 let armFrames = 0;              // frames where we could see the arm
+
+// Debug panel data
+let debugHistory = [];          // last 5 seconds: { time, height, compression }
+let frameTimes = [];            // times of the frames in the last second (to compute fps)
 
 // Last values sent to the callbacks (so we only call them when something changes)
 let lastArmDetected = null;
@@ -127,6 +136,25 @@ export function startTracking(newCallbacks) {
   isTracking = true;
 }
 
+// Debug: change how deep a dip must be (fraction of forearm length)
+export function setSensitivity(value) {
+  minMovement = value;
+}
+
+// Debug: what the tracker sees right now
+export function getDebugData() {
+  let threshold = null;
+  if (forearmLength !== null) {
+    threshold = minMovement * forearmLength;
+  }
+  return {
+    history: debugHistory,          // last 5 seconds of the signal
+    threshold: threshold,           // the minimum dip, in the same unit as height
+    fps: frameTimes.length,         // camera images analysed per second
+    minMovement: minMovement,
+  };
+}
+
 // Stops counting and returns the statistics of the session.
 export function stopTracking() {
   isTracking = false;
@@ -169,6 +197,7 @@ function loop() {
   if (video.currentTime !== lastVideoTime) {
     lastVideoTime = video.currentTime;
     const nowMilliseconds = performance.now();
+    countFrame(nowMilliseconds / 1000);
     const result = poseLandmarker.detectForVideo(video, nowMilliseconds);
     handleResult(result, nowMilliseconds / 1000);
   }
@@ -280,9 +309,12 @@ function processFrame(arm, time) {
     forearmLength = 0.05 * forearmNow + 0.95 * forearmLength;
   }
 
-  // Wrist height. In the image, y grows DOWNWARD,
-  // so height = -y (pushing down makes the height go down).
-  const height = -arm.wrist.y;
+  // Arm height = the average height of shoulder, elbow and wrist.
+  // During a compression the whole arm goes down together, and the
+  // average of 3 points shakes less than one point alone.
+  // In the image, y grows DOWNWARD, so height = -y
+  // (pushing down makes the height go down).
+  const height = -(arm.shoulder.y + arm.elbow.y + arm.wrist.y) / 3;
 
   if (isGlitch(height)) {
     return;
@@ -295,8 +327,9 @@ function processFrame(arm, time) {
     smoothedHeight = SMOOTHING * height + (1 - SMOOTHING) * smoothedHeight;
   }
 
-  detectDip(time);
+  const compressionHere = detectDip(time);
   checkArmStraight(arm);
+  saveDebugPoint(time, compressionHere);
 }
 
 // Jump check: a real wrist can't teleport between two frames, so we ignore
@@ -324,10 +357,12 @@ function isGlitch(height) {
   return true;
 }
 
-// A compression is a dip in the wrist height wave:
-// the wrist goes down, reaches a lowest point, then comes back up.
+// A compression is a dip in the arm height wave:
+// the arm goes down, reaches a lowest point, then comes back up.
+// Returns true if a compression was counted on this frame.
 function detectDip(time) {
-  const threshold = MIN_MOVEMENT * forearmLength;
+  const threshold = minMovement * forearmLength;
+  let compressionHere = false;
 
   if (direction === "down") {
     // Keep track of the lowest point of this push
@@ -338,7 +373,7 @@ function detectDip(time) {
     // Once we've come back up by at least the threshold, the dip is complete
     if (smoothedHeight > lowestPoint + threshold) {
       const depth = (highestPoint - lowestPoint) / forearmLength; // in forearm lengths
-      registerCompression(lowestTime, depth);
+      compressionHere = registerCompression(lowestTime, depth);
       direction = "up";
       highestPoint = smoothedHeight;
     }
@@ -354,14 +389,15 @@ function detectDip(time) {
       lowestTime = time;
     }
   }
+  return compressionHere;
 }
 
-// Called once per detected dip
+// Called once per detected dip. Returns true if it was counted.
 function registerCompression(time, depth) {
   // Too close to the previous one: it's noise, ignore it
   const previousTime = compressionTimes[compressionTimes.length - 1];
   if (previousTime !== undefined && time - previousTime < MIN_INTERVAL) {
-    return;
+    return false;
   }
 
   compressionTimes.push(time);
@@ -382,6 +418,7 @@ function registerCompression(time, depth) {
     }
     callIfGiven("onRate", rate);
   }
+  return true;
 }
 
 // Rate = 60 / median of the last intervals between compressions (up to 5).
@@ -471,6 +508,23 @@ function resetSession() {
   lastArmDetected = null;
   lastArmStraight = null;
   depthStatus = "calibrating";
+  debugHistory = [];
+}
+
+// Debug: remember the signal of the last 5 seconds
+function saveDebugPoint(time, compressionHere) {
+  debugHistory.push({ time: time, height: smoothedHeight, compression: compressionHere });
+  while (debugHistory.length > 0 && time - debugHistory[0].time > 5) {
+    debugHistory.shift();
+  }
+}
+
+// Debug: keep the times of the frames of the last second, to count fps
+function countFrame(time) {
+  frameTimes.push(time);
+  while (frameTimes.length > 0 && time - frameTimes[0] > 1) {
+    frameTimes.shift();
+  }
 }
 
 // Call a callback only if the other file gave it to startTracking
