@@ -6,7 +6,7 @@
   <title>Pandaid CPR</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <!-- data-screen is updated by showScreen() in main.js. style.css uses it
@@ -146,144 +146,89 @@
       <p class="camera-safety">Firm cushion only. Never on a real person.</p>
     </div>
 
-    <!-- ============================== HOME: presentation page ============================== -->
+    <!-- ============================== HOME: the title screen ============================== -->
     <section id="screen-home" class="screen active">
 
-      <!-- Safety band: always the first thing on the page -->
-      <p class="safety-band"><span class="safety-dot"></span>Training aid. Practice on a firm cushion, never on a real person.</p>
-
-      <div class="wrap">
-        <nav class="site-nav">
-          <p class="logo">
-            <svg class="logo-mark" viewBox="0 0 30 30" aria-hidden="true"><rect width="30" height="30"/><path d="M12 5h6v7h7v6h-7v7h-6v-7H5v-6h7z" fill="#fff"/></svg>
-            Pandaid <span class="logo-tag">CPR</span>
-          </p>
-          <div class="nav-right">
-            <a class="nav-link" href="#how-it-works">How it works</a>
-            <a class="nav-link" href="#safety">Safety</a>
-            <button class="btn btn-small start-button">Start</button>
-          </div>
-        </nav>
-      </div>
-
-      <!-- Hero: what the project is, and the start button -->
-      <div class="wrap hero">
-        <div class="hero-text">
-          <h1>
-            <span>Someone collapses.</span>
-            <span class="accent">You have two minutes.</span>
-          </h1>
-          <p class="hero-lead">
-            Make the right calls, then push on a cushion while your webcam counts every
-            compression. Pandaid coaches you until the ambulance arrives.
-          </p>
-          <div class="hero-actions">
-            <button class="btn btn-orange btn-big start-button">Start the simulation</button>
-            <a class="link-button" href="#how-it-works">How does it work?</a>
-          </div>
-          <ul class="tag-row">
-            <li>Runs in your browser</li>
-            <li>No account</li>
-            <li>About 2 min</li>
-          </ul>
-        </div>
-
-        <div class="hero-mascot">
-          <div class="bubble bubble-hero"><p>Hi, I'm Pandaid. I'll coach you through the whole emergency.</p></div>
-          <div class="mascot-panel">
-            <span class="panel-label">Your coach</span>
-            <img class="sticker-hero" src="assets/mascot-stickers/02-excited.png" alt="Pandaid, a red panda in a doctor's coat, waving">
-          </div>
-        </div>
-      </div>
-
-      <!-- Heartbeat line -->
-      <div class="ecg" aria-hidden="true">
-        <svg viewBox="0 0 1440 96" preserveAspectRatio="none">
-          <path d="M0 56H180L196 56L206 40L216 56L232 56L244 16L258 88L270 56L300 56L314 46L330 56H560L576 56L586 40L596 56L612 56L624 16L638 88L650 56L680 56L694 46L710 56H940L956 56L966 40L976 56L992 56L1004 16L1018 88L1030 56L1060 56L1074 46L1090 56H1440" vector-effect="non-scaling-stroke"/>
+      <div class="title-screen">
+        <!-- The city behind the logo -->
+        <svg class="title-city" viewBox="0 0 1600 400" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+          <g fill="#dedcd5">
+            <rect x="40" y="120" width="200" height="280"/><rect x="260" y="200" width="150" height="200"/>
+            <rect x="430" y="80" width="230" height="320"/><rect x="700" y="180" width="170" height="220"/>
+            <rect x="940" y="110" width="210" height="290"/><rect x="1170" y="40" width="170" height="360"/>
+            <rect x="1360" y="160" width="220" height="240"/>
+          </g>
+          <g fill="#ecebe6">
+            <rect x="80" y="160" width="40" height="50"/><rect x="160" y="160" width="40" height="50"/>
+            <rect x="80" y="250" width="40" height="50"/><rect x="160" y="250" width="40" height="50"/>
+            <rect x="470" y="120" width="50" height="60"/><rect x="570" y="120" width="50" height="60"/>
+            <rect x="470" y="230" width="50" height="60"/><rect x="570" y="230" width="50" height="60"/>
+            <rect x="980" y="150" width="50" height="60"/><rect x="1060" y="150" width="50" height="60"/>
+            <rect x="1210" y="80" width="40" height="50"/><rect x="1270" y="80" width="40" height="50"/>
+            <rect x="1400" y="200" width="50" height="60"/><rect x="1490" y="200" width="50" height="60"/>
+          </g>
         </svg>
-      </div>
 
-      <!-- Why: the point of the project -->
-      <div class="wrap home-block why">
-        <p class="eyebrow">01 — Why</p>
-        <div class="why-text">
-          <h2>Most people freeze because they never practiced.</h2>
-          <p>
-            When someone's heart stops, the first minutes decide everything. The first person
-            there is usually not a doctor, but someone like you.
-          </p>
-          <p>
-            Pandaid CPR lets you practice the whole emergency, from the first decision to the
-            last compression, so that one day you don't freeze.
-          </p>
-        </div>
-        <!-- TO FILL FROM OFFICIAL SOURCES: one key number about cardiac arrest and bystander CPR -->
-        <div class="stat-card"><strong>[KEY NUMBER]</strong><span>[WHAT THE NUMBER MEANS, FROM AN OFFICIAL SOURCE]</span></div>
-      </div>
+        <p class="title-warning"><span class="safety-dot"></span>Training aid: firm cushion only, never a real person</p>
 
-      <!-- How it works: the 4 parts of the game -->
-      <div class="wrap home-block" id="how-it-works">
-        <div class="block-head">
-          <p class="eyebrow">02 — How</p>
-          <h2>Four stages, one run.</h2>
+        <div class="title-main">
+          <p class="title-kicker">A CPR training game</p>
+          <h1 class="title-logo"><span class="logo-word">Pandaid</span> <span class="logo-cpr">CPR</span></h1>
+          <p class="title-sub">Someone collapses. You have two minutes.</p>
+
+          <button class="btn btn-orange btn-play start-button">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg>
+            Play
+          </button>
+
+          <div class="title-menu">
+            <a class="menu-btn" href="#how">How to play</a>
+            <a class="menu-btn" href="#safety">Safety</a>
+          </div>
         </div>
-        <ol class="stages">
-          <li class="stage">
-            <span class="stage-num">01</span>
-            <h3>Camera check</h3>
-            <p>Kneel next to a cushion, webcam at your side. We make sure it can see your arms before anything starts.</p>
-            <span class="stage-tags">Side view · Arm visible</span>
-          </li>
-          <li class="stage">
-            <span class="stage-num">02</span>
-            <h3>The right calls, fast</h3>
-            <p>Is it safe? Does he respond? Is he breathing? Who do you call? Answer before the clock runs out: every second counts.</p>
-            <span class="stage-tags">Safe · Responds · Breathing · Call</span>
-          </li>
-          <li class="stage stage-hot">
-            <span class="stage-num">03</span>
-            <h3>Chest compressions</h3>
-            <p>Push on the cushion. The webcam reads your rhythm, depth and arms, and tells you live when to speed up or push deeper.</p>
-            <span class="stage-tags">Rate · Depth · Arms · Pauses</span>
-          </li>
-          <li class="stage">
-            <span class="stage-num">04</span>
-            <h3>Your grade</h3>
-            <p>The ambulance takes over. You get a score for each part and one concrete tip for next time.</p>
-            <span class="stage-tags">Score · One tip</span>
-          </li>
+
+        <img class="title-mascot" src="assets/mascot-stickers/02-excited.png" alt="Pandaid, a red panda in a doctor's coat, waving">
+
+        <!-- The route of the mission: the 4 stages, like levels -->
+        <ol class="route" aria-label="The four stages of the mission">
+          <li class="route-stop route-now"><span class="route-num">1</span>Camera check</li>
+          <li class="route-stop"><span class="route-num">2</span>Calls</li>
+          <li class="route-stop"><span class="route-num">3</span>Compressions</li>
+          <li class="route-stop"><span class="route-num">4</span>Grade</li>
         </ol>
       </div>
 
-      <!-- What you need + safety -->
-      <div class="wrap home-block two-columns" id="safety">
-        <div class="card">
-          <h3>What you need</h3>
-          <ul class="checklist">
-            <li>A firm cushion on the floor</li>
-            <li>A webcam that sees you from the side</li>
-            <li>Space to kneel next to the cushion</li>
-            <li>Sound on, and two minutes</li>
-          </ul>
-        </div>
-        <div class="card card-warning">
-          <p class="card-bar">Safety first</p>
-          <div class="card-warning-body">
-            <p class="warning-main">Practice on a firm cushion only. Never practice on a real person.</p>
-            <p class="muted">This game is a training aid. It does not replace a certified first-aid course.</p>
+      <!-- Pop-up: how to play (opens with the link #how) -->
+      <div class="modal" id="how">
+        <a class="modal-backdrop" href="#" aria-label="Close"></a>
+        <div class="modal-card" role="dialog" aria-labelledby="how-title">
+          <p class="card-bar">Briefing</p>
+          <div class="modal-body">
+            <h2 id="how-title">How to play</h2>
+            <ol class="stages">
+              <li class="stage"><span class="stage-num">01</span><h3>Camera check</h3><p>Kneel next to a cushion, webcam at your side. We check it can see your arms.</p></li>
+              <li class="stage"><span class="stage-num">02</span><h3>The right calls</h3><p>Is it safe? Does he respond? Is he breathing? Who do you call? Answer before the clock runs out.</p></li>
+              <li class="stage stage-hot"><span class="stage-num">03</span><h3>Chest compressions</h3><p>Push on the cushion. The webcam reads your rhythm, depth and arms, and coaches you live.</p></li>
+              <li class="stage"><span class="stage-num">04</span><h3>Your grade</h3><p>The ambulance takes over. You get a score and one tip for next time.</p></li>
+            </ol>
+            <p class="modal-need"><strong>You need:</strong> a firm cushion, a webcam that sees you from the side, space to kneel, sound on, and two minutes.</p>
+            <a class="btn btn-small modal-close" href="#">Got it</a>
           </div>
         </div>
       </div>
 
-      <!-- Last call to action -->
-      <div class="final-cta">
-        <div class="wrap final-inner">
-          <img class="sticker-small" src="assets/mascot-stickers/15-winking.png" alt="">
-          <h2>Ready to help?</h2>
-          <button class="btn btn-orange btn-big start-button">Start the simulation</button>
+      <!-- Pop-up: safety (opens with the link #safety) -->
+      <div class="modal" id="safety">
+        <a class="modal-backdrop" href="#" aria-label="Close"></a>
+        <div class="modal-card modal-warning" role="dialog" aria-labelledby="safety-title">
+          <p class="card-bar">Safety first</p>
+          <div class="modal-body">
+            <h2 id="safety-title">Cushion only.</h2>
+            <p class="warning-main">Practice on a firm cushion only. Never practice on a real person.</p>
+            <p class="muted">This game is a training aid. It does not replace a certified first-aid course.</p>
+            <a class="btn btn-small modal-close" href="#">I understand</a>
+          </div>
         </div>
-        <p class="wrap footnote">Pandaid CPR · A training aid. It does not replace a certified first-aid course.</p>
       </div>
     </section>
 
@@ -430,6 +375,7 @@
     <section id="screen-results" class="screen lesson">
       <div class="results-hero">
         <img class="sticker sticker-big" src="assets/mascot-stickers/13-proud.png" alt="">
+        <p class="mission-kicker">Mission complete</p>
         <h2 class="screen-title">Emergency handled!</h2>
         <div class="grade-badge"><span id="result-grade">–</span></div>
         <p class="results-total"><strong id="result-total">0</strong> points</p>
